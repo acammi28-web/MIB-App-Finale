@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -88,6 +88,7 @@
         // --- Costanti e Stato ---
         const PROXIMITY_RADIUS_METERS = 100;
         const GPS_TIMEOUT_MS = 15000;
+        const TTL_DAYS = 7; // NUOVA COSTANTE: Durata di vita del messaggio in giorni
         
         let db = null;
         let userId = null;
@@ -174,7 +175,7 @@
             } else if (isLocating) {
                  messageInput.placeholder = "Ricerca posizione in corso...";
             } else {
-                 messageInput.placeholder = "Attendere l'acquisizione della posizione...";
+                 messageInput.placeholder = "Attendendo l'acquisizione della posizione...";
             }
         }
 
@@ -338,6 +339,11 @@
                 
                 const unlockTimestamp = calculateUnlockTime();
                 
+                // --- LOGICA TTL (Scadenza Automatica Dopo 7 Giorni) ---
+                // Il campo deve essere un Timestamp di Firestore per la funzione TTL.
+                // Usiamo una data futura calcolata a 7 giorni
+                const expirationDate = new Date(Date.now() + (TTL_DAYS * 24 * 60 * 60 * 1000));
+                
                 const bottlesCollectionRef = collection(db, `artifacts/${USER_APP_ID}/public/data/bottles`);
                 await addDoc(bottlesCollectionRef, {
                     userId: userId, 
@@ -346,6 +352,7 @@
                     longitude: location.lng,
                     timestamp: serverTimestamp(),
                     unlockTimestamp: unlockTimestamp, 
+                    expireAt: expirationDate, // NUOVO CAMPO: Usato da Firestore TTL per l'eliminazione automatica
                 });
 
                 messageInput.value = '';
@@ -364,17 +371,14 @@
             const bottlesCollectionRef = collection(db, `artifacts/${USER_APP_ID}/public/data/bottles`);
             const q = query(bottlesCollectionRef); 
             
-            // Se c'è già un timer, fermalo e riavvialo
+            // Ferma e riavvia il timer del countdown
             if (window.mibIntervalId) {
                 clearInterval(window.mibIntervalId);
             }
-            
-            // Attiva l'aggiornamento del countdown ogni secondo
             window.mibIntervalId = setInterval(updateMessageDisplay, 1000); 
 
-            // Funzione che esegue il filtro di prossimità e temporale
+            // Questa funzione filtra e aggiorna la UI
             function updateMessageDisplay() {
-                // messagesList.messages è popolato da onSnapshot
                 if (!messagesList.messages || !location) return; 
                 
                 const now = Date.now();
@@ -384,7 +388,6 @@
                     const distance = getDistance(location.lat, location.lng, msg.latitude, msg.longitude); 
                     const isNearby = distance <= PROXIMITY_RADIUS_METERS;
 
-                    // Manteniamo TUTTI i messaggi vicini per poter mostrare il countdown BLOCCO
                     return isNearby; 
                 });
                 
@@ -460,6 +463,8 @@
                     timestamp: doc.data().timestamp?.toDate().getTime(),
                     // Assicuriamo che unlockTimestamp sia un numero, anche se manca
                     unlockTimestamp: doc.data().unlockTimestamp || 0,
+                    // TTL - Campo expireAt
+                    expireAt: doc.data().expireAt?.toDate().getTime(), 
                 }));
                 // Aggiorna la visualizzazione immediatamente
                 updateMessageDisplay(); 
