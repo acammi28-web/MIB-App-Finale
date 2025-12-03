@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -44,6 +44,23 @@
                     <option value="days">Giorni</option>
                 </select>
             </div>
+            
+            <!-- Controlli SCADENZA (TTL) - Rinominato "Durata (TTL)" -->
+            <div class="flex items-center space-x-3 mb-4 p-3 bg-gray-700/50 rounded-lg border border-gray-600">
+                <svg class="w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="6" x2="12" y2="10"/><line x1="12" y1="14" x2="12" y2="14"/></svg>
+
+                <label class="text-gray-300 text-sm flex-shrink-0">Durata (TTL):</label>
+                <select id="ttl-days" class="p-1 bg-gray-800 border-none rounded text-white">
+                    <option value="0.02083">30 Minuti</option>
+                    <option value="0.03125">45 Minuti</option>
+                    <option value="0.04167">1 Ora</option>
+                    <option value="0.25">6 Ore</option>
+                    <option value="1">1 Giorno</option>
+                    <option value="3">3 Giorni</option>
+                    <option value="7">7 Giorni</option>
+                </select>
+                
+            </div>
 
             <button id="send-button" disabled class="mt-1 w-full py-2 flex items-center justify-center space-x-2 rounded-lg font-semibold transition bg-gray-600 cursor-not-allowed">
                 <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -88,7 +105,7 @@
         // --- Costanti e Stato ---
         const PROXIMITY_RADIUS_METERS = 100;
         const GPS_TIMEOUT_MS = 15000;
-        const TTL_DAYS = 7; // NUOVA COSTANTE: Durata di vita del messaggio in giorni
+        // TTL_DAYS è ora letto dal selettore, ma lo teniamo come fallback
         
         let db = null;
         let userId = null;
@@ -153,6 +170,9 @@
             const delayUnitSelect = document.getElementById('delay-unit');
             const sendButton = document.getElementById('send-button');
             
+            // Nuovi selettori TTL
+            const ttlDaysSelect = document.getElementById('ttl-days');
+            
             const isConfigMissing = USER_FIREBASE_CONFIG.apiKey.includes('INSERISCI');
             
             // Può inviare solo se DB è attivo E la posizione è disponibile
@@ -168,6 +188,7 @@
             messageInput.disabled = fieldsDisabled;
             delayValueInput.disabled = fieldsDisabled;
             delayUnitSelect.disabled = fieldsDisabled;
+            ttlDaysSelect.disabled = fieldsDisabled; // Disabilita anche il TTL selector
             
             // Aggiorna il placeholder del campo di input
             if (location && !isLocating) {
@@ -326,6 +347,16 @@
             return unlockTime;
         }
 
+        // Funzione per calcolare la scadenza TTL (in millisecondi)
+        const calculateTTL = () => {
+             const ttlDaysValue = parseFloat(document.getElementById('ttl-days').value);
+             // 1 giorno = 24 * 60 * 60 * 1000 ms
+             const msPerDay = 86400000;
+             if (ttlDaysValue <= 0) return null; // Nessuna scadenza se il valore è 0
+             return new Date(Date.now() + (ttlDaysValue * msPerDay));
+        }
+
+
         // Invio del Messaggio (Imbottigliamento)
         async function handleSendMessage() {
             if (!db || !location || !userId) {
@@ -339,10 +370,8 @@
                 
                 const unlockTimestamp = calculateUnlockTime();
                 
-                // --- LOGICA TTL (Scadenza Automatica Dopo 7 Giorni) ---
-                // Il campo deve essere un Timestamp di Firestore per la funzione TTL.
-                // Usiamo una data futura calcolata a 7 giorni
-                const expirationDate = new Date(Date.now() + (TTL_DAYS * 24 * 60 * 60 * 1000));
+                // --- LOGICA TTL ---
+                const expirationDate = calculateTTL();
                 
                 const bottlesCollectionRef = collection(db, `artifacts/${USER_APP_ID}/public/data/bottles`);
                 await addDoc(bottlesCollectionRef, {
@@ -358,6 +387,7 @@
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0; 
                 document.getElementById('delay-unit').value = 'minutes';
+                document.getElementById('ttl-days').value = '0.02083'; // Reset a 30 minuti (valore corretto)
                 updateUIState();
             } catch (e) {
                 console.error("Errore nell'invio del messaggio: ", e);
@@ -417,7 +447,8 @@
                     const remainingTimeMs = msg.unlockTimestamp - now;
                     const unlockTimeDate = new Date(msg.unlockTimestamp);
                     
-                    const formattedDate = new Date(msg.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                    // CORREZIONE UX: Mostra data e ora completa (gg/mm/aa hh:mm)
+                    const formattedDate = new Date(msg.timestamp).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
                     
                     let contentHTML;
                     let cardClasses;
@@ -493,6 +524,7 @@
             document.getElementById('message-input').addEventListener('input', updateUIState);
             document.getElementById('delay-value').addEventListener('input', updateUIState);
             document.getElementById('delay-unit').addEventListener('change', updateUIState);
+            document.getElementById('ttl-days').addEventListener('change', updateUIState); // Listener per il selettore TTL
             
             // Aggiorna lo stato iniziale
             updateUIState();
