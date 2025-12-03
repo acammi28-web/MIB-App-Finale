@@ -371,8 +371,6 @@
                 const unlockTimestamp = calculateUnlockTime();
                 
                 // --- LOGICA TTL ---
-                const expirationDate = calculateTTL();
-                
                 const bottlesCollectionRef = collection(db, `artifacts/${USER_APP_ID}/public/data/bottles`);
                 await addDoc(bottlesCollectionRef, {
                     userId: userId, 
@@ -381,7 +379,6 @@
                     longitude: location.lng,
                     timestamp: serverTimestamp(),
                     unlockTimestamp: unlockTimestamp, 
-                    expireAt: expirationDate, // NUOVO CAMPO: Usato da Firestore TTL per l'eliminazione automatica
                 });
 
                 messageInput.value = '';
