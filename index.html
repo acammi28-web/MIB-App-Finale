@@ -59,24 +59,26 @@
                         <svg class="w-3 h-3 text-green-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         <span class="text-[10px] text-gray-300 leading-none whitespace-nowrap">Apri tra</span>
                         <select id="delay-unit" class="bg-transparent border-none text-white text-xs focus:ring-0 p-0">
-                            <option value="minutes">Min</option>
+                            <option value="minutes">Minuti</option>
                             <option value="hours">Ore</option>
                             <option value="days">GG</option>
                         </select>
                         <input type="number" id="delay-value" min="0" value="0" class="w-6 p-0 text-center bg-transparent border-none text-white text-xs focus:ring-0" disabled>
                     </div>
                     
-                    <!-- Controlli TTL -->
+                    <!-- Controlli TTL (Durata) -->
                     <div class="flex items-center space-x-1 p-1.5 bg-gray-700/50 rounded-lg border border-gray-600 flex-1 justify-center">
                         <svg class="w-3 h-3 text-yellow-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="6" x2="12" y2="10"/><line x1="12" y1="14" x2="12" y2="14"/></svg>
-                        <span class="text-[10px] text-gray-300 leading-none whitespace-nowrap">Lascia per</span>
+                        <span class="text-[10px] text-gray-300 leading-none whitespace-nowrap">Durata</span>
                         <select id="ttl-days" class="bg-transparent border-none text-white text-xs focus:ring-0 p-0 w-full" disabled>
-                            <option value="0.02083">30 Min</option>
+                            <option value="" selected>Seleziona</option>
+                            <option value="0.02083">30 Minuti</option>
+                            <option value="0.03125">45 Minuti</option>
                             <option value="0.04167">1 Ora</option>
                             <option value="0.25">6 Ore</option>
-                            <option value="1">1 GG</option>
-                            <option value="3">3 GG</option>
-                            <option value="7">7 GG</option>
+                            <option value="1">1 Giorno</option>
+                            <option value="3">3 Giorni</option>
+                            <option value="7">7 Giorni</option>
                         </select>
                     </div>
                 </div>
@@ -125,21 +127,13 @@
         const PRESENCE_RADIUS_METERS = 500; 
         const PRESENCE_TIMEOUT_MS = 5 * 60 * 1000;
         const GPS_TIMEOUT_MS = 15000;
+        const DEFAULT_TTL_DAYS = 7; // Durata predefinita se non selezionata
         
         let db = null;
         let userId = null;
         let location = null;
         let isLocating = false;
         let locationError = null;
-        let updateInterval = null; 
-
-        // --- Elementi DOM ---
-        const locationMessageDiv = document.getElementById('location-message');
-        const messagesList = document.getElementById('messages-list');
-        const bottlesHeader = document.getElementById('bottles-header');
-        const messageInput = document.getElementById('message-input');
-        const onlineUsersBadge = document.getElementById('online-users-badge');
-        const onlineCountSpan = document.getElementById('online-count');
 
         const getIcon = (type) => {
              const icons = {
@@ -288,8 +282,14 @@
         };
 
         const calculateTTL = () => {
-             const days = parseFloat(document.getElementById('ttl-days').value);
-             if (days <= 0) return null;
+             const daysValue = document.getElementById('ttl-days').value;
+             let days = parseFloat(daysValue);
+             
+             // Se il valore è vuoto o non valido, usa il default (7 giorni)
+             if (!daysValue || isNaN(days)) {
+                 days = DEFAULT_TTL_DAYS; 
+             }
+             
              return new Date(Date.now() + (days * 86400000));
         };
 
@@ -310,7 +310,7 @@
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
-                document.getElementById('ttl-days').value = '0.02083'; // Reset 30 min
+                document.getElementById('ttl-days').value = ''; // Reset to default "Seleziona"
                 updatePresence();
                 updateUIState();
             } catch (e) { console.error(e); }
