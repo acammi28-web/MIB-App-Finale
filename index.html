@@ -134,6 +134,15 @@
         let location = null;
         let isLocating = false;
         let locationError = null;
+        let updateInterval = null; 
+
+        // --- Elementi DOM ---
+        const locationMessageDiv = document.getElementById('location-message');
+        const messagesList = document.getElementById('messages-list');
+        const bottlesHeader = document.getElementById('bottles-header');
+        const messageInput = document.getElementById('message-input');
+        const onlineUsersBadge = document.getElementById('online-users-badge');
+        const onlineCountSpan = document.getElementById('online-count');
 
         const getIcon = (type) => {
              const icons = {
