@@ -290,11 +290,12 @@
             return Date.now() + ms;
         };
 
+        // --- CALCOLO TTL CORRETTO CON DEFAULT ---
         const calculateTTL = () => {
              const daysValue = document.getElementById('ttl-days').value;
              let days = parseFloat(daysValue);
              
-             // Se il valore è vuoto o non valido, usa il default (7 giorni)
+             // Se il valore è vuoto (utente non ha toccato), usa DEFAULT_TTL_DAYS (7)
              if (!daysValue || isNaN(days)) {
                  days = DEFAULT_TTL_DAYS; 
              }
@@ -315,7 +316,7 @@
                     longitude: location.lng,
                     timestamp: serverTimestamp(),
                     unlockTimestamp: calculateUnlockTime(),
-                    expireAt: calculateTTL()
+                    expireAt: calculateTTL() // Invia sempre una data valida
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
