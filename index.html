@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>M.I.B. (Message In a Bottle) - App Finale</title>
     
-    <!-- PWA e Icone -->
-    <!-- Assicurati che su GitHub il file si chiami esattamente icon.png (tutto minuscolo) -->
+    <!-- PWA e Icone per iPhone/Android/Browser -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
@@ -30,6 +29,16 @@
         body { 
             background-color: #111827; 
             min-height: 100vh;
+        }
+
+        /* Stile per il banner iOS */
+        #ios-install-prompt {
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+            animation: slide-up 0.5s ease-out;
+        }
+        @keyframes slide-up {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
     </style>
 </head>
@@ -63,17 +72,19 @@
                 <textarea id="message-input" class="w-full p-3 mb-2 bg-gray-900 text-white rounded-lg border border-gray-600 focus:ring-green-500 focus:border-green-500 resize-none text-sm" rows="2" placeholder="Attendere acquisizione posizione..." disabled></textarea>
                 
                 <div class="flex justify-between gap-2 mb-2">
+                    <!-- Controlli Ritardo -->
                     <div class="flex items-center space-x-1 p-1.5 bg-gray-700/50 rounded-lg border border-gray-600 flex-1 justify-center">
                         <svg class="w-3 h-3 text-green-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         <span class="text-[10px] text-gray-300 leading-none whitespace-nowrap">Apri tra</span>
                         <select id="delay-unit" class="bg-transparent border-none text-white text-xs focus:ring-0 p-0">
-                            <option value="minutes">Min</option>
+                            <option value="minutes">Minuti</option>
                             <option value="hours">Ore</option>
                             <option value="days">GG</option>
                         </select>
                         <input type="number" id="delay-value" min="0" value="0" class="w-6 p-0 text-center bg-transparent border-none text-white text-xs focus:ring-0" disabled>
                     </div>
                     
+                    <!-- Controlli TTL (Durata) -->
                     <div class="flex items-center space-x-1 p-1.5 bg-gray-700/50 rounded-lg border border-gray-600 flex-1 justify-center">
                         <svg class="w-3 h-3 text-yellow-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="6" x2="12" y2="10"/><line x1="12" y1="14" x2="12" y2="14"/></svg>
                         <span class="text-[10px] text-gray-300 leading-none whitespace-nowrap">Durata</span>
@@ -95,13 +106,14 @@
                     <span>Imbottiglia</span>
                 </button>
             </div>
-            
-            <!-- BANNER GOOGLE PLAY (Visibile solo nel web/browser, non nell'app nativa se la pacchettizzi bene) -->
-            <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="mt-4 flex items-center justify-center space-x-2 bg-gray-800 border border-gray-600 p-2 rounded-lg hover:bg-gray-700 transition">
-                <svg class="w-5 h-5 text-gray-300" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a2.96 2.96 0 0 1-.607-1.745V3.56c0-.66.216-1.272.606-1.746zm11.75 11.62l3.435 3.435-.939.535c-1.332.766-3.05.69-4.22-.19l1.724-3.78zM14.93 11.26l-1.306-2.91 4.67-2.67c1.17-.666 2.888-.742 4.22.025l-7.584 5.555zm-1.76-3.83L3.106 1.258a3.02 3.02 0 0 1 1.76-.566c.866 0 1.67.355 2.254.922l6.05 6.015z"/></svg>
-                <span class="text-xs font-semibold text-gray-300">Scarica l'App Android</span>
-            </a>
-            
+
+             <!-- BANNER GOOGLE PLAY (Visibile solo nel web/browser Android) -->
+             <div id="android-install-banner" class="hidden mt-4">
+                <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="flex items-center justify-center space-x-2 bg-gray-800 border border-gray-600 p-2 rounded-lg hover:bg-gray-700 transition">
+                    <svg class="w-5 h-5 text-gray-300" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a2.96 2.96 0 0 1-.607-1.745V3.56c0-.66.216-1.272.606-1.746zm11.75 11.62l3.435 3.435-.939.535c-1.332.766-3.05.69-4.22-.19l1.724-3.78zM14.93 11.26l-1.306-2.91 4.67-2.67c1.17-.666 2.888-.742 4.22.025l-7.584 5.555zm-1.76-3.83L3.106 1.258a3.02 3.02 0 0 1 1.76-.566c.866 0 1.67.355 2.254.922l6.05 6.015z"/></svg>
+                    <span class="text-xs font-semibold text-gray-300">Scarica l'App Android</span>
+                </a>
+             </div>
         </div>
 
         <!-- LISTA MESSAGGI (SCORREVOLE) -->
@@ -117,13 +129,31 @@
                 </div>
             </div>
         </div>
+        
+        <!-- BANNER ISTRUZIONI IOS (Visibile solo su iPhone nel browser) -->
+        <div id="ios-install-prompt" class="hidden fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-4 z-50">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-sm font-bold text-green-400">Installa M.I.B.</h3>
+                <button onclick="document.getElementById('ios-install-prompt').style.display='none'" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            <p class="text-xs text-gray-300 mb-3">Per non perdere l'accesso e usare l'app a schermo intero:</p>
+            <div class="flex items-center text-xs text-gray-400 space-x-2">
+                <span>1. Tocca</span>
+                <svg class="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                <span>in basso</span>
+            </div>
+            <div class="flex items-center text-xs text-gray-400 space-x-2 mt-1">
+                <span>2. Scorri e scegli</span>
+                <span class="font-bold text-white bg-gray-700 px-1 rounded">Aggiungi alla schermata Home</span>
+            </div>
+        </div>
     </div>
 
     <!-- FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const USER_FIREBASE_CONFIG = {
             apiKey: "AIzaSyBOFHJgBCfVN3hT9EHvI9hSaqH7LxL1UYw", 
@@ -211,7 +241,6 @@
             if (isLocating) {
                 html = `<div class="p-3 bg-blue-600/20 text-blue-300 rounded-lg flex items-center justify-center space-x-2 text-sm">${getIcon('loader')} <span>Ricerca GPS...</span></div>`;
             } else if (locationError) {
-                // MESSAGGIO ERRORE AGGIORNATO (Versione Semplificata)
                 html = `<div class="p-3 bg-red-600/20 text-red-300 rounded-lg flex flex-col items-start space-y-2">
                             <div class="flex items-center space-x-2">${getIcon('x-circle')} <span class="font-semibold">Errore GPS</span></div>
                             <p class="text-sm pl-7 leading-snug">${locationError}</p>
@@ -236,6 +265,36 @@
                     latitude: location.lat, longitude: location.lng, timestamp: serverTimestamp()
                 }, { merge: true });
             } catch (e) { console.error("Err Presenza", e); }
+        }
+
+        // --- RILEVAMENTO DEVICE IOS E INSTALLAZIONE ---
+        function checkIOSInstall() {
+            // Rileva se è un dispositivo iOS (iPhone, iPad, iPod)
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            // Rileva se è già in modalità "Standalone" (aggiunto alla home)
+            const isStandalone = window.navigator.standalone === true;
+
+            // Se è iOS ma NON è standalone (quindi è nel browser), mostra il banner
+            if (isIOS && !isStandalone) {
+                const banner = document.getElementById('ios-install-prompt');
+                banner.classList.remove('hidden');
+            } else if (!isIOS) {
+                // Se non è iOS (quindi è Android o PC), mostra il banner Google Play
+                const androidBanner = document.getElementById('android-install-banner');
+                if(androidBanner) androidBanner.classList.remove('hidden');
+            }
+            
+            // Se è iOS ed è Standalone, invia statistica una tantum
+            if (isIOS && isStandalone) {
+                const hasCounted = localStorage.getItem('ios_install_counted');
+                if (!hasCounted && db) {
+                    const statsRef = doc(db, `artifacts/${USER_APP_ID}/public/data/stats`, 'ios_installs');
+                    // Nota: increment è importato sopra
+                    setDoc(statsRef, { count: increment(1) }, { merge: true });
+                    localStorage.setItem('ios_install_counted', 'true');
+                }
+            }
         }
 
         function setupPresenceListener() {
@@ -297,8 +356,8 @@
                 db = getFirestore(app);
                 const auth = getAuth(app);
                 onAuthStateChanged(auth, (user) => {
-                    if (user) { userId = user.uid; window.fetchLocation(); }
-                    else { signInAnonymously(auth).then(cred => { userId = cred.user.uid; window.fetchLocation(); }).catch(e => { locationError="Errore Auth"; displayLocationMessage(); }); }
+                    if (user) { userId = user.uid; window.fetchLocation(); checkIOSInstall(); }
+                    else { signInAnonymously(auth).then(cred => { userId = cred.user.uid; window.fetchLocation(); checkIOSInstall(); }).catch(e => { locationError="Errore Auth"; displayLocationMessage(); }); }
                 });
             } catch (e) { locationError = e.message; displayLocationMessage(); }
         }
