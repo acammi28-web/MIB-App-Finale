@@ -202,7 +202,14 @@
             if (isLocating) {
                 html = `<div class="p-3 bg-blue-600/20 text-blue-300 rounded-lg flex items-center justify-center space-x-2 text-sm">${getIcon('loader')} <span>Ricerca GPS...</span></div>`;
             } else if (locationError) {
-                html = `<div class="p-3 bg-red-600/20 text-red-300 rounded-lg flex flex-col items-start space-y-1"><div class="flex items-center space-x-2">${getIcon('x-circle')} <span class="font-semibold">Errore GPS</span></div><p class="text-sm pl-7">${locationError}</p><button onclick="window.fetchLocation()" class="ml-7 mt-2 px-3 py-1 bg-red-800 rounded-md hover:bg-red-700 transition text-sm">Riprova</button></div>`;
+                html = `<div class="p-3 bg-red-600/20 text-red-300 rounded-lg flex flex-col items-start space-y-2">
+                            <div class="flex items-center space-x-2">${getIcon('x-circle')} <span class="font-semibold">Errore GPS</span></div>
+                            <p class="text-sm pl-7 leading-snug">${locationError}</p>
+                            <div class="pl-7 flex space-x-2">
+                                <button onclick="window.location.reload()" class="px-3 py-1.5 bg-red-700 text-white rounded-md hover:bg-red-600 transition text-xs font-semibold shadow-sm">Ricarica Pagina</button>
+                                <button onclick="window.fetchLocation()" class="px-3 py-1.5 border border-red-500 text-red-100 rounded-md hover:bg-red-900/40 transition text-xs">Riprova</button>
+                            </div>
+                        </div>`;
             } else if (location) {
                 html = `<div class="p-2 bg-green-600/20 text-green-300 rounded-lg flex items-center space-x-2 text-sm">${getIcon('map-pin')} <span>Posizione acquisita. Raggio: ${PROXIMITY_RADIUS_METERS}m</span></div>`;
             } else {
@@ -258,7 +265,15 @@
                     setInterval(updatePresence, 60000);
                 },
                 (err) => {
-                    locationError = `Errore GPS (Codice ${err.code}). Controlla i permessi.`;
+                    let msg = `Errore GPS (Codice ${err.code}).`;
+                    if (err.code === 1) {
+                         msg = "Permesso negato. Su iPhone/iPad: 1. Ricarica la pagina. 2. Se non va, attiva Localizzazione in Impostazioni > Privacy.";
+                    } else if (err.code === 2) {
+                         msg = "Segnale debole. Spostati all'aperto o attiva il Wi-Fi.";
+                    } else if (err.code === 3) {
+                         msg = "Tempo scaduto. Riprova.";
+                    }
+                    locationError = msg;
                     isLocating = false;
                     displayLocationMessage();
                 },
@@ -290,7 +305,6 @@
             return Date.now() + ms;
         };
 
-        // --- CALCOLO TTL CORRETTO CON DEFAULT ---
         const calculateTTL = () => {
              const daysValue = document.getElementById('ttl-days').value;
              let days = parseFloat(daysValue);
