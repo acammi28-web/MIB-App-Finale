@@ -4,16 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>M.I.B. (Message In a Bottle) - App Finale</title>
-    
-    <!-- PWA e Icone per iPhone/Android/Browser -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
-    <link rel="shortcut icon" type="image/png" href="icon.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#111827">
-
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -106,7 +96,6 @@
                     <span>Imbottiglia</span>
                 </button>
             </div>
-
              <!-- BANNER GOOGLE PLAY (Visibile solo nel web/browser Android) -->
              <div id="android-install-banner" class="hidden mt-4">
                 <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="flex items-center justify-center space-x-2 bg-gray-800 border border-gray-600 p-2 rounded-lg hover:bg-gray-700 transition">
@@ -241,6 +230,7 @@
             if (isLocating) {
                 html = `<div class="p-3 bg-blue-600/20 text-blue-300 rounded-lg flex items-center justify-center space-x-2 text-sm">${getIcon('loader')} <span>Ricerca GPS...</span></div>`;
             } else if (locationError) {
+                // MESSAGGIO ERRORE AGGIORNATO (Versione Semplificata)
                 html = `<div class="p-3 bg-red-600/20 text-red-300 rounded-lg flex flex-col items-start space-y-2">
                             <div class="flex items-center space-x-2">${getIcon('x-circle')} <span class="font-semibold">Errore GPS</span></div>
                             <p class="text-sm pl-7 leading-snug">${locationError}</p>
@@ -287,12 +277,19 @@
             
             // Se è iOS ed è Standalone, invia statistica una tantum
             if (isIOS && isStandalone) {
-                const hasCounted = localStorage.getItem('ios_install_counted');
+                const hasCounted = localStorage.getItem('ios_install_counted_v2'); // Versione 2 chiave
                 if (!hasCounted && db) {
                     const statsRef = doc(db, `artifacts/${USER_APP_ID}/public/data/stats`, 'ios_installs');
-                    // Nota: increment è importato sopra
-                    setDoc(statsRef, { count: increment(1) }, { merge: true });
-                    localStorage.setItem('ios_install_counted', 'true');
+                    // Tenta di scrivere su Firebase. Se fallisce, NON salvare in locale.
+                    setDoc(statsRef, { count: increment(1) }, { merge: true })
+                        .then(() => {
+                            console.log("iOS install tracked successfully");
+                            localStorage.setItem('ios_install_counted_v2', 'true');
+                        })
+                        .catch((e) => {
+                            console.error("Failed to track iOS install:", e);
+                            // Non salviamo in localStorage, così ci riproverà alla prossima apertura
+                        });
                 }
             }
         }
@@ -336,6 +333,7 @@
                 (err) => {
                     let msg = `Errore GPS (Codice ${err.code}).`;
                     if (err.code === 1) {
+                         // TESTO AGGIORNATO E SEMPLIFICATO
                          msg = "Permesso negato. Vai nelle Impostazioni e attiva la posizione, poi clicca Ricarica.";
                     } else if (err.code === 2) {
                          msg = "Segnale debole. Spostati all'aperto o attiva il Wi-Fi.";
@@ -400,7 +398,7 @@
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
-                document.getElementById('ttl-days').value = ''; 
+                document.getElementById('ttl-days').value = ''; // Reset to default "Seleziona"
                 updatePresence();
                 updateUIState();
             } catch (e) { console.error(e); }
