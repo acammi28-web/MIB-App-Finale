@@ -1,6 +1,51 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>M.I.B. (Message In a Bottle) - App Finale</title>
+    
+    <!-- PWA e Icone per iPhone/Android/Browser -->
+    <!-- AGGIUNTO ?v=2 per forzare Safari ad aggiornare l'immagine -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png?v=2">
+    <link rel="icon" type="image/png" href="icon.png?v=2">
+    <link rel="shortcut icon" type="image/png" href="icon.png?v=2">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#111827">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        .icon { width: 24px; height: 24px; display: inline-block; vertical-align: middle; }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
+        .online-indicator { animation: pulse-green 2s infinite; }
+        
+        body { 
+            background-color: #111827; 
+            min-height: 100vh;
+        }
+
+        /* Stile per il banner iOS */
+        #ios-install-prompt {
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+            animation: slide-up 0.5s ease-out;
+        }
+        @keyframes slide-up {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+    </style>
+</head>
+<!-- IL RESTO DEL CODICE SOTTO (BODY) RIMANE UGUALE -->
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>M.I.B. (Message In a Bottle) - App Finale</title>
@@ -469,3 +514,4 @@
     </script>
 </body>
 </html>
+
