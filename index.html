@@ -202,11 +202,12 @@
             if (isLocating) {
                 html = `<div class="p-3 bg-blue-600/20 text-blue-300 rounded-lg flex items-center justify-center space-x-2 text-sm">${getIcon('loader')} <span>Ricerca GPS...</span></div>`;
             } else if (locationError) {
+                // MESSAGGIO ERRORE AGGIORNATO (Versione Semplificata)
                 html = `<div class="p-3 bg-red-600/20 text-red-300 rounded-lg flex flex-col items-start space-y-2">
                             <div class="flex items-center space-x-2">${getIcon('x-circle')} <span class="font-semibold">Errore GPS</span></div>
                             <p class="text-sm pl-7 leading-snug">${locationError}</p>
-                            <div class="pl-7 flex space-x-2">
-                                <button onclick="window.location.reload()" class="px-3 py-1.5 bg-red-700 text-white rounded-md hover:bg-red-600 transition text-xs font-semibold shadow-sm">Ricarica Pagina</button>
+                            <div class="pl-7 flex space-x-2 mt-1">
+                                <button onclick="window.location.reload()" class="px-3 py-1.5 bg-red-700 text-white rounded-md hover:bg-red-600 transition text-xs font-semibold shadow-sm shadow-red-900">Ricarica Pagina</button>
                                 <button onclick="window.fetchLocation()" class="px-3 py-1.5 border border-red-500 text-red-100 rounded-md hover:bg-red-900/40 transition text-xs">Riprova</button>
                             </div>
                         </div>`;
@@ -267,7 +268,8 @@
                 (err) => {
                     let msg = `Errore GPS (Codice ${err.code}).`;
                     if (err.code === 1) {
-                         msg = "Permesso negato. Su iPhone/iPad: 1. Ricarica la pagina. 2. Se non va, attiva Localizzazione in Impostazioni > Privacy.";
+                         // TESTO AGGIORNATO E SEMPLIFICATO
+                         msg = "Permesso negato. Vai nelle Impostazioni e attiva la posizione, poi clicca Ricarica.";
                     } else if (err.code === 2) {
                          msg = "Segnale debole. Spostati all'aperto o attiva il Wi-Fi.";
                     } else if (err.code === 3) {
@@ -308,12 +310,9 @@
         const calculateTTL = () => {
              const daysValue = document.getElementById('ttl-days').value;
              let days = parseFloat(daysValue);
-             
-             // Se il valore è vuoto (utente non ha toccato), usa DEFAULT_TTL_DAYS (7)
              if (!daysValue || isNaN(days)) {
                  days = DEFAULT_TTL_DAYS; 
              }
-             
              return new Date(Date.now() + (days * 86400000));
         };
 
@@ -330,11 +329,11 @@
                     longitude: location.lng,
                     timestamp: serverTimestamp(),
                     unlockTimestamp: calculateUnlockTime(),
-                    expireAt: calculateTTL() // Invia sempre una data valida
+                    expireAt: calculateTTL() 
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
-                document.getElementById('ttl-days').value = ''; // Reset to default "Seleziona"
+                document.getElementById('ttl-days').value = ''; 
                 updatePresence();
                 updateUIState();
             } catch (e) { console.error(e); }
