@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>M.I.B. (Message In a Bottle) - App Finale</title>
     
     <!-- PWA e Icone per iPhone/Android/Browser -->
-    <!-- AGGIUNTO ?v=2 per forzare Safari ad aggiornare l'immagine -->
+    <!-- ?v=2 forza l'aggiornamento della cache delle immagini -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png?v=2">
     <link rel="icon" type="image/png" href="icon.png?v=2">
@@ -28,52 +28,52 @@
         }
         .online-indicator { animation: pulse-green 2s infinite; }
         
-        body { 
-            background-color: #111827; 
-            min-height: 100vh;
+        /* FIX MODERN: Usa 100dvh per adattarsi alle barre di sistema mobili */
+        body, html { 
+            height: 100%;
+            height: 100dvh; /* Dynamic Viewport Height */
+            margin: 0;
+            padding: 0;
+            background-color: #111827; /* bg-gray-900 */
+            overflow: hidden; /* Blocca scroll pagina intera */
+        }
+
+        #app {
+            height: 100%;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Nasconde la scrollbar per pulizia estetica ma permette lo scroll */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
         /* Stile per il banner iOS */
         #ios-install-prompt {
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
-            animation: slide-up 0.5s ease-out;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+            animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            border-top: 1px solid #374151;
         }
         @keyframes slide-up {
             from { transform: translateY(100%); }
             to { transform: translateY(0); }
         }
-    </style>
-</head>
-<!-- IL RESTO DEL CODICE SOTTO (BODY) RIMANE UGUALE -->
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>M.I.B. (Message In a Bottle) - App Finale</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <style>
-        .icon { width: 24px; height: 24px; display: inline-block; vertical-align: middle; }
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-            70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
-        }
-        .online-indicator { animation: pulse-green 2s infinite; }
         
-        body { 
-            background-color: #111827; 
-            min-height: 100vh;
-        }
-
-        /* Stile per il banner iOS */
-        #ios-install-prompt {
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
-            animation: slide-up 0.5s ease-out;
-        }
-        @keyframes slide-up {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+        /* Icona condivisione iOS specifica */
+        .ios-share-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50' enable-background='new 0 0 50 50'%3E%3Cpath fill='%233b82f6' d='M30.3,13.7L25,8.4l-5.3,5.3l-1.4-1.4L25,5.6l6.7,6.7L30.3,13.7z'/%3E%3Cpath fill='%233b82f6' d='M24,7v21h2V7H24z'/%3E%3Cpath fill='%233b82f6' d='M35,44H15c-1.7,0-3-1.3-3-3V22c0-1.7,1.3-3,3-3h7v2h-7c-0.6,0-1,0.4-1,1v19c0,0.6,0.4,1,1,1h20c0.6,0,1-0.4,1-1V22 c0-0.6-0.4-1-1-1h-7v-2h7c1.7,0,3,1.3,3,3v19C38,42.7,36.7,44,35,44z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: text-bottom;
         }
     </style>
 </head>
@@ -81,14 +81,15 @@
 
     <div id="app" class="w-full max-w-lg mx-auto relative pb-10">
         
-        <!-- PARTE SUPERIORE -->
-        <div class="p-4 sm:p-8 pb-2">
+        <!-- PARTE SUPERIORE (Fissa) -->
+        <div class="flex-none p-4 sm:p-8 pb-2 z-20 bg-gray-900 shadow-xl border-b border-gray-800">
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-bold text-center text-green-500 flex items-center tracking-widest">
                     <svg class="w-7 h-7 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     <span>M.I.B.</span>
                 </h1>
                 
+                <!-- Indicatore Utenti Online -->
                 <div id="online-users-badge" class="hidden flex items-center bg-gray-800 px-3 py-1 rounded-full border border-gray-700 text-xs">
                     <span class="w-2 h-2 bg-green-500 rounded-full mr-2 online-indicator"></span>
                     <span id="online-count" class="font-bold text-white mr-1.5 text-sm">1</span>
@@ -141,6 +142,7 @@
                     <span>Imbottiglia</span>
                 </button>
             </div>
+
              <!-- BANNER GOOGLE PLAY (Visibile solo nel web/browser Android) -->
              <div id="android-install-banner" class="hidden mt-4">
                 <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="flex items-center justify-center space-x-2 bg-gray-800 border border-gray-600 p-2 rounded-lg hover:bg-gray-700 transition">
@@ -165,20 +167,35 @@
         </div>
         
         <!-- BANNER ISTRUZIONI IOS (Visibile solo su iPhone nel browser) -->
-        <div id="ios-install-prompt" class="hidden fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-4 z-50">
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="text-sm font-bold text-green-400">Installa M.I.B.</h3>
-                <button onclick="document.getElementById('ios-install-prompt').style.display='none'" class="text-gray-400 hover:text-white">✕</button>
+        <div id="ios-install-prompt" class="hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t-2 border-green-500/50 p-5 z-50">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center space-x-2">
+                    <img src="icon.png?v=2" class="w-10 h-10 rounded-lg shadow-lg border border-gray-700">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Installa M.I.B.</h3>
+                        <p class="text-[10px] text-gray-400">Web App per iOS</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('ios-install-prompt').style.display='none'" class="text-gray-400 hover:text-white p-1">✕</button>
             </div>
-            <p class="text-xs text-gray-300 mb-3">Per non perdere l'accesso e usare l'app a schermo intero:</p>
-            <div class="flex items-center text-xs text-gray-400 space-x-2">
-                <span>1. Tocca</span>
-                <svg class="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                <span>in basso</span>
+            
+            <p class="text-xs text-gray-300 mb-4 leading-relaxed">
+                Per usare l'app a schermo intero e salvare l'accesso:
+            </p>
+            
+            <div class="flex items-center justify-between bg-gray-800 p-3 rounded-lg border border-gray-700">
+                <div class="flex items-center space-x-3 text-xs text-gray-200">
+                    <span>1. Tocca</span>
+                    <span class="ios-share-icon"></span>
+                </div>
+                <div class="h-4 w-[1px] bg-gray-600"></div>
+                <div class="flex items-center space-x-2 text-xs text-gray-200">
+                    <span>2. Scegli</span>
+                    <span class="font-bold text-white">Aggiungi a Home</span>
+                </div>
             </div>
-            <div class="flex items-center text-xs text-gray-400 space-x-2 mt-1">
-                <span>2. Scorri e scegli</span>
-                <span class="font-bold text-white bg-gray-700 px-1 rounded">Aggiungi alla schermata Home</span>
+            <div class="text-center mt-2">
+                <span class="text-[10px] text-gray-500">Funziona meglio su Safari</span>
             </div>
         </div>
     </div>
@@ -251,11 +268,17 @@
         };
         
         function updateUIState() {
-            const canSend = db && location && messageInput.value.trim() !== '' && !isLocating && userId;
-            document.getElementById('send-button').disabled = !canSend;
+            const ttlValue = document.getElementById('ttl-days').value;
+            const canSend = db && location && messageInput.value.trim() !== '' && !isLocating && userId && ttlValue !== "";
             
             const btn = document.getElementById('send-button');
-            btn.className = `w-full py-2 flex items-center justify-center space-x-2 rounded-lg font-semibold transition ${canSend ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-600 cursor-not-allowed text-gray-400'}`;
+            btn.disabled = !canSend;
+            
+            if (canSend) {
+                btn.className = "w-full py-2 flex items-center justify-center space-x-2 rounded-lg font-semibold transition bg-green-600 hover:bg-green-700 text-white";
+            } else {
+                btn.className = "w-full py-2 flex items-center justify-center space-x-2 rounded-lg font-semibold transition bg-gray-600 cursor-not-allowed text-gray-400";
+            }
 
             const fieldsDisabled = !location || isLocating || !userId || !db;
             messageInput.disabled = document.getElementById('delay-value').disabled = document.getElementById('delay-unit').disabled = document.getElementById('ttl-days').disabled = fieldsDisabled;
@@ -275,10 +298,16 @@
             if (isLocating) {
                 html = `<div class="p-3 bg-blue-600/20 text-blue-300 rounded-lg flex items-center justify-center space-x-2 text-sm">${getIcon('loader')} <span>Ricerca GPS...</span></div>`;
             } else if (locationError) {
-                // MESSAGGIO ERRORE AGGIORNATO (Versione Semplificata)
+                // MESSAGGIO ERRORE AGGIORNATO CON FIX IOS
+                let helpText = "Vai nelle Impostazioni e attiva la posizione, poi ricarica la pagina.";
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    helpText = "Su iPhone: Vai in Impostazioni > Privacy > Localizzazione > Safari (o Chrome). Scegli 'Mentre usi l'app'. Poi clicca Ricarica.";
+                }
+
                 html = `<div class="p-3 bg-red-600/20 text-red-300 rounded-lg flex flex-col items-start space-y-2">
                             <div class="flex items-center space-x-2">${getIcon('x-circle')} <span class="font-semibold">Errore GPS</span></div>
                             <p class="text-sm pl-7 leading-snug">${locationError}</p>
+                            <p class="text-xs text-gray-400 pl-7 italic">${helpText}</p>
                             <div class="pl-7 flex space-x-2 mt-1">
                                 <button onclick="window.location.reload()" class="px-3 py-1.5 bg-red-700 text-white rounded-md hover:bg-red-600 transition text-xs font-semibold shadow-sm shadow-red-900">Ricarica Pagina</button>
                                 <button onclick="window.fetchLocation()" class="px-3 py-1.5 border border-red-500 text-red-100 rounded-md hover:bg-red-900/40 transition text-xs">Riprova</button>
@@ -302,39 +331,29 @@
             } catch (e) { console.error("Err Presenza", e); }
         }
 
-        // --- RILEVAMENTO DEVICE IOS E INSTALLAZIONE ---
         function checkIOSInstall() {
-            // Rileva se è un dispositivo iOS (iPhone, iPad, iPod)
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            
-            // Rileva se è già in modalità "Standalone" (aggiunto alla home)
             const isStandalone = window.navigator.standalone === true;
 
-            // Se è iOS ma NON è standalone (quindi è nel browser), mostra il banner
             if (isIOS && !isStandalone) {
                 const banner = document.getElementById('ios-install-prompt');
                 banner.classList.remove('hidden');
             } else if (!isIOS) {
-                // Se non è iOS (quindi è Android o PC), mostra il banner Google Play
-                const androidBanner = document.getElementById('android-install-banner');
-                if(androidBanner) androidBanner.classList.remove('hidden');
+                if (window.location.hostname.includes('vercel.app')) {
+                    const androidBanner = document.getElementById('android-install-banner');
+                    if(androidBanner) androidBanner.classList.remove('hidden');
+                }
             }
             
-            // Se è iOS ed è Standalone, invia statistica una tantum
             if (isIOS && isStandalone) {
-                const hasCounted = localStorage.getItem('ios_install_counted_v2'); // Versione 2 chiave
+                const hasCounted = localStorage.getItem('ios_install_counted_v2');
                 if (!hasCounted && db) {
                     const statsRef = doc(db, `artifacts/${USER_APP_ID}/public/data/stats`, 'ios_installs');
-                    // Tenta di scrivere su Firebase. Se fallisce, NON salvare in locale.
                     setDoc(statsRef, { count: increment(1) }, { merge: true })
                         .then(() => {
-                            console.log("iOS install tracked successfully");
                             localStorage.setItem('ios_install_counted_v2', 'true');
                         })
-                        .catch((e) => {
-                            console.error("Failed to track iOS install:", e);
-                            // Non salviamo in localStorage, così ci riproverà alla prossima apertura
-                        });
+                        .catch((e) => {});
                 }
             }
         }
@@ -379,7 +398,7 @@
                     let msg = `Errore GPS (Codice ${err.code}).`;
                     if (err.code === 1) {
                          // TESTO AGGIORNATO E SEMPLIFICATO
-                         msg = "Permesso negato. Vai nelle Impostazioni e attiva la posizione, poi clicca Ricarica.";
+                         msg = "Permesso negato. Vai nelle Impostazioni e attiva la posizione, poi ricarica la pagina.";
                     } else if (err.code === 2) {
                          msg = "Segnale debole. Spostati all'aperto o attiva il Wi-Fi.";
                     } else if (err.code === 3) {
@@ -514,4 +533,3 @@
     </script>
 </body>
 </html>
-
