@@ -28,6 +28,7 @@
         }
         .online-indicator { animation: pulse-green 2s infinite; }
         
+        /* SCROLL NATURALE (Senza blocchi) */
         body { 
             background-color: #111827; 
             min-height: 100vh;
@@ -59,8 +60,8 @@
 
     <div id="app" class="w-full max-w-lg mx-auto relative pb-10">
         
-        <!-- PARTE SUPERIORE (Fissa) -->
-        <div class="flex-none p-4 sm:p-8 pb-2 z-20 bg-gray-900 shadow-xl border-b border-gray-800">
+        <!-- PARTE SUPERIORE (Scorre via quando scendi) -->
+        <div class="p-4 sm:p-8 pb-2">
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-bold text-center text-green-500 flex items-center tracking-widest">
                     <svg class="w-7 h-7 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -120,6 +121,7 @@
                     <span>Imbottiglia</span>
                 </button>
             </div>
+
              <!-- BANNER GOOGLE PLAY (Visibile solo nel web/browser Android) -->
              <div id="android-install-banner" class="hidden mt-4">
                 <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="flex items-center justify-center space-x-2 bg-gray-800 border border-gray-600 p-2 rounded-lg hover:bg-gray-700 transition">
@@ -129,8 +131,8 @@
              </div>
         </div>
 
-        <!-- LISTA MESSAGGI (SCORREVOLE) -->
-        <div class="flex-1 overflow-y-auto w-full px-4 sm:px-8 hide-scrollbar relative">
+        <!-- LISTA MESSAGGI (Layout naturale senza scroll bloccato) -->
+        <div class="w-full px-4 sm:px-8 relative">
             <h2 id="bottles-header" class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2 sticky top-0 bg-gray-900 z-10 pt-4 shadow-lg">
                 Bottiglie Trovate (0)
             </h2>
@@ -245,9 +247,8 @@
         };
         
         function updateUIState() {
-            // FIX: Ora la condizione controlla solo se la posizione e db sono pronti.
-            // Il TTL non è più obbligatorio (se vuoto, usa default).
-            // messageInput deve avere testo.
+            // FIX: Ora la condizione controlla solo se la posizione e db sono pronti e c'è del testo.
+            // Il TTL non è più obbligatorio per cliccare su invia (se vuoto usa i 7 giorni di default).
             const canSend = db && location && messageInput.value.trim() !== '' && !isLocating && userId;
             
             const btn = document.getElementById('send-button');
@@ -277,8 +278,7 @@
             if (isLocating) {
                 html = `<div class="p-3 bg-blue-600/20 text-blue-300 rounded-lg flex items-center justify-center space-x-2 text-sm">${getIcon('loader')} <span>Ricerca GPS...</span></div>`;
             } else if (locationError) {
-                // MESSAGGIO ERRORE AGGIORNATO (Versione Semplificata)
-                let helpText = "Vai nelle Impostazioni e attiva la posizione.";
+                let helpText = "Vai nelle Impostazioni e attiva la posizione, poi ricarica la pagina.";
                 if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
                     helpText = "Su iPhone: Vai in Impostazioni > Privacy > Localizzazione > Safari (o Chrome). Scegli 'Mentre usi l'app'. Poi clicca Ricarica.";
                 }
@@ -312,23 +312,19 @@
 
         // --- RILEVAMENTO DEVICE IOS E INSTALLAZIONE ---
         function checkIOSInstall() {
-            // Rileva se è un dispositivo iOS (iPhone, iPad, iPod)
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            
-            // Rileva se è già in modalità "Standalone" (aggiunto alla home)
             const isStandalone = window.navigator.standalone === true;
 
-            // Se è iOS ma NON è standalone (quindi è nel browser), mostra il banner
             if (isIOS && !isStandalone) {
                 const banner = document.getElementById('ios-install-prompt');
                 banner.classList.remove('hidden');
             } else if (!isIOS) {
-                // Se non è iOS (quindi è Android o PC), mostra il banner Google Play
-                const androidBanner = document.getElementById('android-install-banner');
-                if(androidBanner) androidBanner.classList.remove('hidden');
+                if (window.location.hostname.includes('vercel.app')) {
+                    const androidBanner = document.getElementById('android-install-banner');
+                    if(androidBanner) androidBanner.classList.remove('hidden');
+                }
             }
             
-            // Se è iOS ed è Standalone, invia statistica una tantum
             if (isIOS && isStandalone) {
                 const hasCounted = localStorage.getItem('ios_install_counted_v2');
                 if (!hasCounted && db) {
@@ -381,7 +377,6 @@
                 (err) => {
                     let msg = `Errore GPS (Codice ${err.code}).`;
                     if (err.code === 1) {
-                         // TESTO AGGIORNATO E SEMPLIFICATO
                          msg = "Permesso negato. Vai nelle Impostazioni e attiva la posizione, poi clicca Ricarica.";
                     } else if (err.code === 2) {
                          msg = "Segnale debole. Spostati all'aperto o attiva il Wi-Fi.";
@@ -423,47 +418,58 @@
         const calculateTTL = () => {
              const daysValue = document.getElementById('ttl-days').value;
              let days = parseFloat(daysValue);
-             // Se il valore è vuoto o non valido, usa il default (7 giorni)
              if (!daysValue || isNaN(days)) {
                  days = DEFAULT_TTL_DAYS; 
              }
              return new Date(Date.now() + (days * 86400000));
         };
-        
-        // FUNZIONE PER CALCOLARE L'OPACITÀ E LO STILE IN BASE ALL'ETÀ (EFFETTO FANTASMA)
-        const getAgeStyle = (timestamp) => {
-            const now = Date.now();
-            const ageHours = (now - timestamp) / (1000 * 60 * 60); // Età in ore
 
-            // 1. Nuovissimo (< 1 ora): Verde brillante, bordo spesso
-            if (ageHours < 1) {
+        // FUNZIONE PER CALCOLARE L'OPACITÀ E LO STILE IN BASE ALL'ETÀ
+        const getAgeStyle = (timestamp, isNewest) => {
+            const now = Date.now();
+            const ageHours = (now - timestamp) / (1000 * 60 * 60);
+
+            // 1. REGOLE PER L'ULTIMO MESSAGGIO DELLA ZONA (Non sbiadisce mai del tutto)
+            if (isNewest) {
+                if (ageHours < 24) {
+                    // Appena scritto o comunque di oggi: Neon e brillante
+                    return {
+                        border: 'border-green-500 border-2 shadow-[0_0_15px_rgba(74,222,128,0.3)]',
+                        text: 'text-white font-medium',
+                        opacity: 'opacity-100'
+                    };
+                } else {
+                    // Ha più di un giorno, ma è l'unico/ultimo qui: Resta vivo e leggibile
+                    return {
+                        border: 'border-green-600 border',
+                        text: 'text-gray-100 font-medium',
+                        opacity: 'opacity-100'
+                    };
+                }
+            }
+
+            // 2. REGOLE PER GLI ALTRI MESSAGGI (Il decadimento parte dal secondo giorno)
+            if (ageHours < 24) {
+                // TUTTI i messaggi delle ultime 24 ore: Vividi e non sbiaditi
                 return {
-                    border: 'border-green-500 border-2 shadow-[0_0_15px_rgba(74,222,128,0.3)]',
-                    text: 'text-white font-medium',
+                    border: 'border-green-500 border',
+                    text: 'text-white',
                     opacity: 'opacity-100'
                 };
             }
-            // 2. Recente (< 24 ore): Bordo verde normale
-            if (ageHours < 24) {
-                return {
-                    border: 'border-green-600/60',
-                    text: 'text-gray-100',
-                    opacity: 'opacity-95'
-                };
-            }
-            // 3. Vecchio (1-3 giorni): Bordo grigio, testo spento
             if (ageHours < 72) {
+                // Vecchio (1-3 giorni): Inizia a sbiadire, bordo grigio
                 return {
                     border: 'border-gray-600',
                     text: 'text-gray-400',
                     opacity: 'opacity-80'
                 };
             }
-            // 4. Antico (> 3 giorni): Molto scuro e trasparente (FANTASMA)
+            // Antico (> 3 giorni): FANTASMA
             return {
                 border: 'border-gray-800 bg-gray-800/40',
                 text: 'text-gray-500 italic',
-                opacity: 'opacity-50 hover:opacity-100 transition-opacity duration-300' // Diventa visibile se ci passi sopra
+                opacity: 'opacity-40 hover:opacity-100 transition-opacity duration-300'
             };
         };
 
@@ -484,7 +490,7 @@
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
-                document.getElementById('ttl-days').value = ''; // Reset to default "Seleziona"
+                document.getElementById('ttl-days').value = ''; 
                 updatePresence();
                 updateUIState();
             } catch (e) { console.error(e); }
@@ -519,15 +525,17 @@
                     return;
                 }
 
-                visible.forEach(msg => {
+                // Aggiunto l'indice (index) per capire quale messaggio è il primo della lista
+                visible.forEach((msg, index) => {
                     const isUnlocked = msg.unlockTimestamp <= now;
                     const isOwner = msg.userId === userId;
                     const dateStr = new Date(msg.timestamp).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                     
                     const delBtn = isOwner ? `<button onclick="window.deleteMessage('${msg.id}')" class="absolute top-3 right-3 p-1 text-gray-500 hover:text-red-500 z-10">${getIcon('trash')}</button>` : '';
                     
-                    // CALCOLO DELLO STILE DI INVECCHIAMENTO
-                    const ageStyle = getAgeStyle(msg.timestamp);
+                    // STILE INVECCHIAMENTO (Passiamo isNewest = true se è il primo elemento, index === 0)
+                    const isNewest = (index === 0);
+                    const ageStyle = getAgeStyle(msg.timestamp, isNewest);
 
                     let html = isUnlocked ? 
                         `${delBtn}<p class="text-xs mb-2 italic pr-8 ${ageStyle.text} opacity-80">Da <span class="font-mono text-xs text-yellow-400">${isOwner?'Te':'Anonimo'}</span> il ${dateStr}</p><div class="border-l-4 pl-3 pr-2 ${ageStyle.text.replace('text-gray-500', 'text-gray-400')} border-green-500/50"><p class="text-lg break-words">${msg.message}</p></div>` :
@@ -559,4 +567,3 @@
     </script>
 </body>
 </html>
-
