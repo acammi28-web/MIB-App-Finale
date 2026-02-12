@@ -422,58 +422,66 @@
              return new Date(Date.now() + (days * 86400000));
         };
 
-        // FUNZIONE PER CALCOLARE L'OPACITÀ E LO STILE IN BASE ALL'ETÀ
+        // FUNZIONE PER CALCOLARE L'OPACITÀ E LO STILE IN BASE ALL'ETÀ DI CALENDARIO
         const getAgeStyle = (timestamp, isNewest) => {
-            const now = Date.now();
-            const ageHours = (now - timestamp) / (1000 * 60 * 60);
+            const now = new Date();
+            // Troviamo l'inizio esatto di "Oggi" (Mezzanotte)
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            
+            const msgDate = new Date(timestamp);
+            // Troviamo l'inizio del giorno in cui è stato scritto il messaggio
+            const msgDayStart = new Date(msgDate.getFullYear(), msgDate.getMonth(), msgDate.getDate()).getTime();
+            
+            // Differenza in giorni di calendario esatti (0 = Oggi, 1 = Ieri, 2 = L'altro ieri)
+            const daysDiff = Math.round((todayStart - msgDayStart) / (1000 * 60 * 60 * 24));
 
-            // 1. REGOLE PER L'ULTIMO MESSAGGIO DELLA ZONA (Non sbiadisce mai del tutto)
+            // 1. REGOLE PER L'ULTIMO MESSAGGIO DELLA ZONA (Il Re della zona non sbiadisce)
             if (isNewest) {
-                if (ageHours < 24) {
-                    // Appena scritto o comunque di oggi: Neon e brillante
+                if (daysDiff === 0) {
+                    // Oggi: Neon e brillante
                     return {
                         border: 'border-green-500 border-2 shadow-[0_0_15px_rgba(74,222,128,0.3)]',
                         text: 'text-white font-medium',
                         opacity: 'opacity-100'
                     };
                 } else {
-                    // Ha più di un giorno, ma è l'unico/ultimo qui: Resta vivo e leggibile
+                    // Vecchio, ma essendo l'unico/ultimo deve restare molto visibile
                     return {
-                        border: 'border-green-600 border',
+                        border: 'border-green-500/80 border',
                         text: 'text-gray-100 font-medium',
                         opacity: 'opacity-100'
                     };
                 }
             }
 
-            // 2. REGOLE PER GLI ALTRI MESSAGGI (Gradualità a 4 step)
-            if (ageHours < 24) {
-                // OGGI (< 24h): Neon e brillante
+            // 2. REGOLE PER GLI ALTRI MESSAGGI (Calendario reale)
+            if (daysDiff === 0) {
+                // OGGI: Neon e brillante
                 return {
                     border: 'border-green-500 border-2 shadow-[0_0_15px_rgba(74,222,128,0.3)]',
                     text: 'text-white font-medium',
                     opacity: 'opacity-100'
                 };
             }
-            if (ageHours < 48) {
-                // IERI (24-48h): Normale e leggibile, senza neon
+            if (daysDiff === 1) {
+                // IERI: Normale, sfondo grigio standard, bordo trasparente (niente linea)
                 return {
-                    border: 'border-green-600/60 border',
-                    text: 'text-gray-100',
+                    border: 'border-transparent border',
+                    text: 'text-gray-200',
                     opacity: 'opacity-95'
                 };
             }
-            if (ageHours < 96) {
-                // PASSATO (2-4 giorni): Inizia a sbiadire
+            if (daysDiff === 2) {
+                // L'ALTRO IERI: Inizia a sbiadire
                 return {
-                    border: 'border-gray-600',
+                    border: 'border-gray-700/50 border',
                     text: 'text-gray-400',
-                    opacity: 'opacity-80'
+                    opacity: 'opacity-70'
                 };
             }
-            // ANTICO (> 4 giorni): Fantasma
+            // ANTICO (>= 3 giorni): Fantasma
             return {
-                border: 'border-gray-800 bg-gray-800/40',
+                border: 'border-transparent bg-gray-800/40',
                 text: 'text-gray-500 italic',
                 opacity: 'opacity-40 hover:opacity-100 transition-opacity duration-300'
             };
