@@ -247,8 +247,7 @@
         };
         
         function updateUIState() {
-            // FIX: Ora la condizione controlla solo se la posizione e db sono pronti e c'è del testo.
-            // Il TTL non è più obbligatorio per cliccare su invia (se vuoto usa i 7 giorni di default).
+            // Controlla se la posizione, il database e il testo sono pronti (il TTL non è obbligatorio per cliccare su invia)
             const canSend = db && location && messageInput.value.trim() !== '' && !isLocating && userId;
             
             const btn = document.getElementById('send-button');
@@ -310,7 +309,6 @@
             } catch (e) { console.error("Err Presenza", e); }
         }
 
-        // --- RILEVAMENTO DEVICE IOS E INSTALLAZIONE ---
         function checkIOSInstall() {
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.navigator.standalone === true;
@@ -448,24 +446,32 @@
                 }
             }
 
-            // 2. REGOLE PER GLI ALTRI MESSAGGI (Il decadimento parte dal secondo giorno)
+            // 2. REGOLE PER GLI ALTRI MESSAGGI (Gradualità a 4 step)
             if (ageHours < 24) {
-                // TUTTI i messaggi delle ultime 24 ore: Vividi e non sbiaditi
+                // OGGI (< 24h): Neon e brillante
                 return {
-                    border: 'border-green-500 border',
-                    text: 'text-white',
+                    border: 'border-green-500 border-2 shadow-[0_0_15px_rgba(74,222,128,0.3)]',
+                    text: 'text-white font-medium',
                     opacity: 'opacity-100'
                 };
             }
-            if (ageHours < 72) {
-                // Vecchio (1-3 giorni): Inizia a sbiadire, bordo grigio
+            if (ageHours < 48) {
+                // IERI (24-48h): Normale e leggibile, senza neon
+                return {
+                    border: 'border-green-600/60 border',
+                    text: 'text-gray-100',
+                    opacity: 'opacity-95'
+                };
+            }
+            if (ageHours < 96) {
+                // PASSATO (2-4 giorni): Inizia a sbiadire
                 return {
                     border: 'border-gray-600',
                     text: 'text-gray-400',
                     opacity: 'opacity-80'
                 };
             }
-            // Antico (> 3 giorni): FANTASMA
+            // ANTICO (> 4 giorni): Fantasma
             return {
                 border: 'border-gray-800 bg-gray-800/40',
                 text: 'text-gray-500 italic',
