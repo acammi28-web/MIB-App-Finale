@@ -28,7 +28,7 @@
         }
         .online-indicator { animation: pulse-green 2s infinite; }
 
-        /* NUOVO: Animazione Glow per messaggi freschi */
+        /* Animazione Glow per messaggi freschi */
         @keyframes glow-pulse {
             0% { box-shadow: 0 0 5px rgba(74, 222, 128, 0.2); }
             50% { box-shadow: 0 0 15px rgba(74, 222, 128, 0.5); }
@@ -36,7 +36,7 @@
         }
         .message-glow { animation: glow-pulse 3s infinite ease-in-out; }
         
-        /* SCROLL NATURALE (Senza blocchi) */
+        /* SCROLL NATURALE */
         body { 
             background-color: #111827; 
             min-height: 100vh;
@@ -243,6 +243,9 @@
         let isLocating = false;
         let locationError = null;
         let updateInterval = null; 
+
+        // Inizializziamo il set per ricordare quali messaggi abbiamo "svelato"
+        window.revealedReactions = window.revealedReactions || new Set();
 
         // --- Elementi DOM ---
         const locationMessageDiv = document.getElementById('location-message');
@@ -531,7 +534,6 @@
         }
         window.deleteMessage = deleteMessage;
 
-        // NUOVO: Logica per gestire il click sulle Reazioni
         window.toggleReaction = async (messageId, type) => {
             if (!db || !userId) return;
             const msg = messagesList.messages.find(m => m.id === messageId);
@@ -586,23 +588,29 @@
                     const isNewest = (index === 0);
                     const ageStyle = getAgeStyle(msg.timestamp, isNewest);
 
-                    // NUOVO: HTML per la barra delle reazioni (solo se il messaggio è sbloccato)
                     let reactionsHtml = '';
+                    let totalReactions = 0;
+
                     if (isUnlocked) {
                         const reactions = msg.reactions || { eye: [], think: [], shhh: [] };
                         const eyeCount = reactions.eye ? reactions.eye.length : 0;
                         const thinkCount = reactions.think ? reactions.think.length : 0;
                         const shhhCount = reactions.shhh ? reactions.shhh.length : 0;
+                        
+                        totalReactions = eyeCount + thinkCount + shhhCount;
 
                         const hasEye = reactions.eye && reactions.eye.includes(userId);
                         const hasThink = reactions.think && reactions.think.includes(userId);
                         const hasShhh = reactions.shhh && reactions.shhh.includes(userId);
 
-                        // Stile: se hai cliccato è grigio evidenziato, altrimenti è testo opaco
+                        // Controlla se nascondere o mostrare la barra
+                        const isRevealed = totalReactions > 0 || (window.revealedReactions && window.revealedReactions.has(msg.id));
+                        const hiddenClass = isRevealed ? '' : 'hidden';
+
                         const getBtnStyle = (active) => active ? 'bg-gray-700/80 text-white rounded-md px-2 py-1 shadow-inner' : 'text-gray-500 hover:text-gray-300 px-2 py-1';
 
                         reactionsHtml = `
-                            <div class="mt-3 flex space-x-2 border-t border-gray-700/30 pt-2">
+                            <div id="reactions-${msg.id}" class="mt-3 flex space-x-2 border-t border-gray-700/30 pt-2 transition-all duration-300 ${hiddenClass}">
                                 <button onclick="window.toggleReaction('${msg.id}', 'eye')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasEye)}">
                                     <span class="text-sm">👁️</span> <span class="font-mono font-bold">${eyeCount > 0 ? eyeCount : '0'}</span>
                                 </button>
@@ -616,7 +624,6 @@
                         `;
                     }
 
-                    // Iniezione di reactionsHtml dentro la card sbloccata
                     let html = isUnlocked ? 
                         `${delBtn}<p class="text-xs mb-2 italic pr-8 ${ageStyle.classes.includes('text-gray-500') ? 'text-gray-500' : 'text-gray-300'} opacity-80">Da <span class="font-mono text-xs text-yellow-400">${isOwner?'Te':'Anonimo'}</span> il ${dateStr} ${radiusBadge}</p><div class="border-l-4 pl-3 pr-2 border-green-500/50"><p class="text-lg break-words">${msg.message}</p></div>${reactionsHtml}` :
                         `${delBtn}<div class="pr-8"><p class="text-sm font-semibold text-red-400 flex items-center space-x-2">${getIcon('clock')} APERTURA TRA: <span class="text-lg font-bold text-red-300 ml-1">${formatTimeRemaining(msg.unlockTimestamp - now)}</span></p></div>`;
@@ -627,6 +634,19 @@
                     div.style.opacity = !isUnlocked ? '1' : ageStyle.opacity;
                     div.innerHTML = html;
                     
+                    // Aggiungiamo l'evento click per "svelare" le reazioni
+                    if (isUnlocked && totalReactions === 0) {
+                        div.classList.add('cursor-pointer');
+                        div.onclick = (e) => {
+                            // Impediamo l'attivazione se l'utente sta premendo un pulsante (come il cestino)
+                            if (!e.target.closest('button')) {
+                                window.revealedReactions.add(msg.id);
+                                const bar = document.getElementById(`reactions-${msg.id}`);
+                                if (bar) bar.classList.remove('hidden');
+                            }
+                        };
+                    }
+
                     messagesList.appendChild(div);
                 });
             }
