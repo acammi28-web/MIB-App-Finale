@@ -102,7 +102,7 @@
                     <!-- 1. Controlli Raggio (Sinistra) -->
                     <div class="flex flex-col items-center p-1.5 bg-gray-700/50 rounded-lg border border-gray-600">
                         <div class="flex items-center space-x-1 mb-1">
-                            <svg class="w-3 h-3 text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                            <span class="text-[10px]">📍</span>
                             <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Raggio</span>
                         </div>
                         <select id="message-radius" class="bg-transparent border-none text-white text-xs font-bold focus:ring-0 p-0 text-center w-full" disabled>
@@ -471,7 +471,7 @@
              return new Date(Date.now() + (days * 86400000));
         };
 
-        // NUOVO: FUNZIONE STILE (Sfumature morbide, senza buchi visivi)
+        // NUOVO: FUNZIONE STILE (Sfumature morbide, tolto l'italic ai messaggi vecchissimi per non creare lo stacco netto)
         const getAgeStyle = (timestamp, isNewest) => {
             const now = new Date();
             const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -501,11 +501,11 @@
                 return { classes: 'border-gray-700 border bg-gray-800/70 text-gray-300', opacity: '0.80' };
             }
             if (daysDiff > 2 && daysDiff < 5) { // 3-4 GIORNI (Vecchio ma presente)
-                return { classes: 'border-transparent bg-gray-800/50 text-gray-400', opacity: '0.65' };
+                return { classes: 'border-gray-800 border bg-gray-800/50 text-gray-400', opacity: '0.65' };
             }
             
-            // ANTICO (>= 5 giorni) - Non sparisce mai del tutto. Pavimento di visibilità al 50%
-            return { classes: 'border-transparent bg-gray-800/30 text-gray-500 italic hover:opacity-100 transition-opacity duration-500', opacity: '0.50' };
+            // ANTICO (>= 5 giorni) - Non sparisce mai del tutto, niente italic
+            return { classes: 'border-transparent bg-gray-800/40 text-gray-500 hover:opacity-100 transition-opacity duration-500', opacity: '0.50' };
         };
 
         async function handleSendMessage() {
@@ -553,7 +553,7 @@
                 if (!messagesList.messages || !location) return;
                 const now = Date.now();
                 
-                // Filtro con raggio dinamico specifico per ogni messaggio
+                // Filtro con raggio dinamico specifico per ogni messaggio (FUNZIONA VERAMENTE MATEMATICAMENTE)
                 const visible = messagesList.messages.filter(msg => {
                     const radius = msg.radius || PROXIMITY_RADIUS_METERS;
                     const dist = getDistance(location.lat, location.lng, msg.latitude, msg.longitude);
