@@ -96,7 +96,7 @@
             <div id="send-block" class="p-3 rounded-xl shadow-inner bg-gray-800 border border-gray-700">
                 <textarea id="message-input" class="w-full p-3 mb-2 bg-gray-900 text-white rounded-lg border border-gray-600 focus:ring-green-500 focus:border-green-500 resize-none text-sm" rows="2" placeholder="Attendere acquisizione posizione..." disabled></textarea>
                 
-                <!-- NUOVO: Griglia Controlli a 3 colonne riordinata con icone piccole -->
+                <!-- Griglia Controlli a 3 colonne -->
                 <div class="grid grid-cols-3 gap-2 mb-2">
                     
                     <!-- 1. Controlli Raggio (Sinistra) -->
@@ -173,7 +173,7 @@
             </div>
         </div>
         
-        <!-- NUOVO: BANNER ISTRUZIONI IOS (Safari & Chrome support) -->
+        <!-- BANNER ISTRUZIONI IOS (Safari & Chrome support) -->
         <div id="ios-install-prompt" class="hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t-2 border-green-500/50 p-5 z-50">
             <div class="flex justify-between items-start mb-3">
                 <div class="flex items-center space-x-2">
@@ -219,9 +219,10 @@
 
     <!-- FIREBASE -->
     <script type="module">
+        // AGGIUNTO: updateDoc, arrayUnion, arrayRemove per le Reazioni
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, setDoc, increment, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const USER_FIREBASE_CONFIG = {
             apiKey: "AIzaSyBOFHJgBCfVN3hT9EHvI9hSaqH7LxL1UYw", 
@@ -254,7 +255,6 @@
         const getIcon = (type) => {
              const icons = {
                 'map-pin': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
-                'send': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
                 'loader': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9z"/><path d="M2 12a10 10 0 0 1 10-10"/></svg>`,
                 'x-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
                 'clock': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
@@ -358,7 +358,6 @@
                 const banner = document.getElementById('ios-install-prompt');
                 banner.classList.remove('hidden');
                 
-                // NUOVO: Controllo specifico Safari vs Chrome per le icone
                 const isChrome = navigator.userAgent.includes("CriOS");
                 if (isChrome) {
                     document.getElementById('ios-chrome-step').classList.remove('hidden');
@@ -471,7 +470,6 @@
              return new Date(Date.now() + (days * 86400000));
         };
 
-        // NUOVO: FUNZIONE STILE (Sfumature morbide, tolto l'italic ai messaggi vecchissimi per non creare lo stacco netto)
         const getAgeStyle = (timestamp, isNewest) => {
             const now = new Date();
             const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -481,7 +479,6 @@
             
             const daysDiff = Math.round((todayStart - msgDayStart) / (1000 * 60 * 60 * 24));
 
-            // 1. L'ULTIMO MESSAGGIO DELLA ZONA
             if (isNewest) {
                 if (daysDiff === 0) {
                     return { classes: 'border-green-400 border-2 message-glow bg-gray-800 text-white font-medium', opacity: '1' };
@@ -490,21 +487,11 @@
                 }
             }
 
-            // 2. ALTRI MESSAGGI (Degrado più dolce in 5 passi)
-            if (daysDiff === 0) { // OGGI
-                return { classes: 'border-green-400 border-2 message-glow bg-gray-800 text-white font-medium', opacity: '1' };
-            }
-            if (daysDiff === 1) { // IERI (Visibile e leggibile, no neon)
-                return { classes: 'border-gray-600 border bg-gray-800/90 text-gray-200', opacity: '0.90' };
-            }
-            if (daysDiff === 2) { // L'ALTRO IERI (Inizia a sbiadire dolcemente)
-                return { classes: 'border-gray-700 border bg-gray-800/70 text-gray-300', opacity: '0.80' };
-            }
-            if (daysDiff > 2 && daysDiff < 5) { // 3-4 GIORNI (Vecchio ma presente)
-                return { classes: 'border-gray-800 border bg-gray-800/50 text-gray-400', opacity: '0.65' };
-            }
+            if (daysDiff === 0) { return { classes: 'border-green-400 border-2 message-glow bg-gray-800 text-white font-medium', opacity: '1' }; }
+            if (daysDiff === 1) { return { classes: 'border-gray-600 border bg-gray-800/90 text-gray-200', opacity: '0.90' }; }
+            if (daysDiff === 2) { return { classes: 'border-gray-700 border bg-gray-800/70 text-gray-300', opacity: '0.80' }; }
+            if (daysDiff > 2 && daysDiff < 5) { return { classes: 'border-gray-800 border bg-gray-800/50 text-gray-400', opacity: '0.65' }; }
             
-            // ANTICO (>= 5 giorni) - Non sparisce mai del tutto, niente italic
             return { classes: 'border-transparent bg-gray-800/40 text-gray-500 hover:opacity-100 transition-opacity duration-500', opacity: '0.50' };
         };
 
@@ -513,7 +500,6 @@
             const msgTxt = messageInput.value.trim();
             if (!msgTxt) return;
 
-            // Lettura del raggio
             const radiusValue = parseInt(document.getElementById('message-radius').value) || PROXIMITY_RADIUS_METERS;
 
             try {
@@ -525,7 +511,8 @@
                     timestamp: serverTimestamp(),
                     unlockTimestamp: calculateUnlockTime(),
                     expireAt: calculateTTL(),
-                    radius: radiusValue // Salviamo il raggio su Firebase
+                    radius: radiusValue,
+                    reactions: { eye: [], think: [], shhh: [] } // Inizializziamo le reazioni vuote
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
@@ -544,6 +531,27 @@
         }
         window.deleteMessage = deleteMessage;
 
+        // NUOVO: Logica per gestire il click sulle Reazioni
+        window.toggleReaction = async (messageId, type) => {
+            if (!db || !userId) return;
+            const msg = messagesList.messages.find(m => m.id === messageId);
+            if (!msg) return;
+
+            const currentReactions = msg.reactions || {};
+            const hasReacted = currentReactions[type] && currentReactions[type].includes(userId);
+            const docRef = doc(db, `artifacts/${USER_APP_ID}/public/data/bottles`, messageId);
+
+            try {
+                if (hasReacted) {
+                    await updateDoc(docRef, { [`reactions.${type}`]: arrayRemove(userId) });
+                } else {
+                    await updateDoc(docRef, { [`reactions.${type}`]: arrayUnion(userId) });
+                }
+            } catch (e) {
+                console.error("Errore reazione", e);
+            }
+        };
+
         function setupDbListener() {
             const q = query(collection(db, `artifacts/${USER_APP_ID}/public/data/bottles`));
             if (window.mibIntervalId) clearInterval(window.mibIntervalId);
@@ -553,7 +561,6 @@
                 if (!messagesList.messages || !location) return;
                 const now = Date.now();
                 
-                // Filtro con raggio dinamico specifico per ogni messaggio (FUNZIONA VERAMENTE MATEMATICAMENTE)
                 const visible = messagesList.messages.filter(msg => {
                     const radius = msg.radius || PROXIMITY_RADIUS_METERS;
                     const dist = getDistance(location.lat, location.lng, msg.latitude, msg.longitude);
@@ -573,21 +580,49 @@
                     const isOwner = msg.userId === userId;
                     const dateStr = new Date(msg.timestamp).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                     
-                    // Badge raggio visualizzato vicino alla data
                     const radiusBadge = `<span class="bg-gray-700/50 px-1.5 py-0.5 rounded text-[9px] ml-1">📍 ${msg.radius || 100}m</span>`;
-                    
                     const delBtn = isOwner ? `<button onclick="window.deleteMessage('${msg.id}')" class="absolute top-3 right-3 p-1 text-gray-500 hover:text-red-500 z-10">${getIcon('trash')}</button>` : '';
                     
                     const isNewest = (index === 0);
                     const ageStyle = getAgeStyle(msg.timestamp, isNewest);
 
+                    // NUOVO: HTML per la barra delle reazioni (solo se il messaggio è sbloccato)
+                    let reactionsHtml = '';
+                    if (isUnlocked) {
+                        const reactions = msg.reactions || { eye: [], think: [], shhh: [] };
+                        const eyeCount = reactions.eye ? reactions.eye.length : 0;
+                        const thinkCount = reactions.think ? reactions.think.length : 0;
+                        const shhhCount = reactions.shhh ? reactions.shhh.length : 0;
+
+                        const hasEye = reactions.eye && reactions.eye.includes(userId);
+                        const hasThink = reactions.think && reactions.think.includes(userId);
+                        const hasShhh = reactions.shhh && reactions.shhh.includes(userId);
+
+                        // Stile: se hai cliccato è grigio evidenziato, altrimenti è testo opaco
+                        const getBtnStyle = (active) => active ? 'bg-gray-700/80 text-white rounded-md px-2 py-1 shadow-inner' : 'text-gray-500 hover:text-gray-300 px-2 py-1';
+
+                        reactionsHtml = `
+                            <div class="mt-3 flex space-x-2 border-t border-gray-700/30 pt-2">
+                                <button onclick="window.toggleReaction('${msg.id}', 'eye')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasEye)}">
+                                    <span class="text-sm">👁️</span> <span class="font-mono font-bold">${eyeCount > 0 ? eyeCount : '0'}</span>
+                                </button>
+                                <button onclick="window.toggleReaction('${msg.id}', 'think')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasThink)}">
+                                    <span class="text-sm">🤔</span> <span class="font-mono font-bold">${thinkCount > 0 ? thinkCount : '0'}</span>
+                                </button>
+                                <button onclick="window.toggleReaction('${msg.id}', 'shhh')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasShhh)}">
+                                    <span class="text-sm">🤫</span> <span class="font-mono font-bold">${shhhCount > 0 ? shhhCount : '0'}</span>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    // Iniezione di reactionsHtml dentro la card sbloccata
                     let html = isUnlocked ? 
-                        `${delBtn}<p class="text-xs mb-2 italic pr-8 ${ageStyle.classes.includes('text-gray-500') ? 'text-gray-500' : 'text-gray-300'} opacity-80">Da <span class="font-mono text-xs text-yellow-400">${isOwner?'Te':'Anonimo'}</span> il ${dateStr} ${radiusBadge}</p><div class="border-l-4 pl-3 pr-2 border-green-500/50"><p class="text-lg break-words">${msg.message}</p></div>` :
+                        `${delBtn}<p class="text-xs mb-2 italic pr-8 ${ageStyle.classes.includes('text-gray-500') ? 'text-gray-500' : 'text-gray-300'} opacity-80">Da <span class="font-mono text-xs text-yellow-400">${isOwner?'Te':'Anonimo'}</span> il ${dateStr} ${radiusBadge}</p><div class="border-l-4 pl-3 pr-2 border-green-500/50"><p class="text-lg break-words">${msg.message}</p></div>${reactionsHtml}` :
                         `${delBtn}<div class="pr-8"><p class="text-sm font-semibold text-red-400 flex items-center space-x-2">${getIcon('clock')} APERTURA TRA: <span class="text-lg font-bold text-red-300 ml-1">${formatTimeRemaining(msg.unlockTimestamp - now)}</span></p></div>`;
                     
                     const div = document.createElement('div');
                     
-                    // Applicazione stile dinamico
                     div.className = `p-4 rounded-xl shadow-lg relative transition transform hover:scale-[1.01] ${!isUnlocked ? 'bg-red-900/40 border border-red-700' : ageStyle.classes}`;
                     div.style.opacity = !isUnlocked ? '1' : ageStyle.opacity;
                     div.innerHTML = html;
