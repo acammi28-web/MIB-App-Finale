@@ -219,7 +219,6 @@
 
     <!-- FIREBASE -->
     <script type="module">
-        // AGGIUNTO: updateDoc, arrayUnion, arrayRemove per le Reazioni
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, setDoc, increment, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -515,7 +514,8 @@
                     unlockTimestamp: calculateUnlockTime(),
                     expireAt: calculateTTL(),
                     radius: radiusValue,
-                    reactions: { eye: [], think: [], shhh: [] } // Inizializziamo le reazioni vuote
+                    // Inizializzate le 4 nuove reazioni
+                    reactions: { think: [], eye: [], shock: [], heart: [] } 
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
@@ -592,33 +592,41 @@
                     let totalReactions = 0;
 
                     if (isUnlocked) {
-                        const reactions = msg.reactions || { eye: [], think: [], shhh: [] };
-                        const eyeCount = reactions.eye ? reactions.eye.length : 0;
-                        const thinkCount = reactions.think ? reactions.think.length : 0;
-                        const shhhCount = reactions.shhh ? reactions.shhh.length : 0;
+                        // Inizializzo l'oggetto per supportare anche le vecchie bottiglie senza crashare
+                        const reactions = msg.reactions || { think: [], eye: [], shock: [], heart: [] };
                         
-                        totalReactions = eyeCount + thinkCount + shhhCount;
+                        const thinkCount = reactions.think ? reactions.think.length : 0;
+                        const eyeCount = reactions.eye ? reactions.eye.length : 0;
+                        const shockCount = reactions.shock ? reactions.shock.length : 0;
+                        const heartCount = reactions.heart ? reactions.heart.length : 0;
+                        
+                        totalReactions = thinkCount + eyeCount + shockCount + heartCount;
 
-                        const hasEye = reactions.eye && reactions.eye.includes(userId);
                         const hasThink = reactions.think && reactions.think.includes(userId);
-                        const hasShhh = reactions.shhh && reactions.shhh.includes(userId);
+                        const hasEye = reactions.eye && reactions.eye.includes(userId);
+                        const hasShock = reactions.shock && reactions.shock.includes(userId);
+                        const hasHeart = reactions.heart && reactions.heart.includes(userId);
 
                         // Controlla se nascondere o mostrare la barra
                         const isRevealed = totalReactions > 0 || (window.revealedReactions && window.revealedReactions.has(msg.id));
                         const hiddenClass = isRevealed ? '' : 'hidden';
 
-                        const getBtnStyle = (active) => active ? 'bg-gray-700/80 text-white rounded-md px-2 py-1 shadow-inner' : 'text-gray-500 hover:text-gray-300 px-2 py-1';
+                        const getBtnStyle = (active) => active ? 'bg-gray-700/80 text-white rounded-md px-1.5 py-1 shadow-inner' : 'text-gray-500 hover:text-gray-300 px-1.5 py-1';
 
+                        // Nuovo Layout a 4 pulsanti: 🤔 | 👁️ | 😱 | ❤️
                         reactionsHtml = `
-                            <div id="reactions-${msg.id}" class="mt-3 flex space-x-2 border-t border-gray-700/30 pt-2 transition-all duration-300 ${hiddenClass}">
-                                <button onclick="window.toggleReaction('${msg.id}', 'eye')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasEye)}">
-                                    <span class="text-sm">👁️</span> <span class="font-mono font-bold">${eyeCount > 0 ? eyeCount : '0'}</span>
-                                </button>
+                            <div id="reactions-${msg.id}" class="mt-3 flex justify-between space-x-1 border-t border-gray-700/30 pt-2 transition-all duration-300 ${hiddenClass}">
                                 <button onclick="window.toggleReaction('${msg.id}', 'think')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasThink)}">
                                     <span class="text-sm">🤔</span> <span class="font-mono font-bold">${thinkCount > 0 ? thinkCount : '0'}</span>
                                 </button>
-                                <button onclick="window.toggleReaction('${msg.id}', 'shhh')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasShhh)}">
-                                    <span class="text-sm">🤫</span> <span class="font-mono font-bold">${shhhCount > 0 ? shhhCount : '0'}</span>
+                                <button onclick="window.toggleReaction('${msg.id}', 'eye')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasEye)}">
+                                    <span class="text-sm">👁️</span> <span class="font-mono font-bold">${eyeCount > 0 ? eyeCount : '0'}</span>
+                                </button>
+                                <button onclick="window.toggleReaction('${msg.id}', 'shock')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasShock)}">
+                                    <span class="text-sm">😱</span> <span class="font-mono font-bold">${shockCount > 0 ? shockCount : '0'}</span>
+                                </button>
+                                <button onclick="window.toggleReaction('${msg.id}', 'heart')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasHeart)}">
+                                    <span class="text-sm">❤️</span> <span class="font-mono font-bold">${heartCount > 0 ? heartCount : '0'}</span>
                                 </button>
                             </div>
                         `;
@@ -638,7 +646,6 @@
                     if (isUnlocked && totalReactions === 0) {
                         div.classList.add('cursor-pointer');
                         div.onclick = (e) => {
-                            // Impediamo l'attivazione se l'utente sta premendo un pulsante (come il cestino)
                             if (!e.target.closest('button')) {
                                 window.revealedReactions.add(msg.id);
                                 const bar = document.getElementById(`reactions-${msg.id}`);
