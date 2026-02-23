@@ -514,7 +514,8 @@
                     unlockTimestamp: calculateUnlockTime(),
                     expireAt: calculateTTL(),
                     radius: radiusValue,
-                    reactions: { think: [], eye: [], shock: [], heart: [] } 
+                    reactions: { think: [], eye: [], shock: [], heart: [] },
+                    reportedBy: [] // NUOVO: Array per l'auto-moderazione
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
@@ -553,6 +554,28 @@
             }
         };
 
+        // --- NUOVO: Funzione per Segnalare (Auto-Moderazione) ---
+        window.reportMessage = async (messageId) => {
+            if (!db || !userId) return;
+            const msg = messagesList.messages.find(m => m.id === messageId);
+            if (!msg) return;
+
+            const hasReported = msg.reportedBy && msg.reportedBy.includes(userId);
+            if (hasReported) {
+                alert("Hai già segnalato questo messaggio.");
+                return;
+            }
+
+            if (!confirm("⚠️ Vuoi segnalare questo messaggio per contenuti inopportuni o offensivi? \n\nSe un messaggio riceve 3 segnalazioni, verrà rimosso automaticamente.")) return;
+
+            try {
+                const docRef = doc(db, `artifacts/${USER_APP_ID}/public/data/bottles`, messageId);
+                await updateDoc(docRef, { reportedBy: arrayUnion(userId) });
+            } catch (e) {
+                console.error("Errore segnalazione", e);
+            }
+        };
+
         function setupDbListener() {
             const q = query(collection(db, `artifacts/${USER_APP_ID}/public/data/bottles`));
             if (window.mibIntervalId) clearInterval(window.mibIntervalId);
@@ -563,6 +586,11 @@
                 const now = Date.now();
                 
                 const visible = messagesList.messages.filter(msg => {
+                    // --- NUOVO: FILTRO AUTO-MODERAZIONE ---
+                    // Se il messaggio ha 3 o più segnalazioni, scompare dal feed.
+                    const reportsCount = msg.reportedBy ? msg.reportedBy.length : 0;
+                    if (reportsCount >= 3) return false;
+
                     const radius = msg.radius || PROXIMITY_RADIUS_METERS;
                     const dist = getDistance(location.lat, location.lng, msg.latitude, msg.longitude);
                     return dist <= radius;
@@ -605,8 +633,10 @@
                         const hasEye = reactions.eye && reactions.eye.includes(userId);
                         const hasShock = reactions.shock && reactions.shock.includes(userId);
                         const hasHeart = reactions.heart && reactions.heart.includes(userId);
+                        
+                        // Controllo se l'utente attuale ha segnalato il messaggio
+                        const hasReported = msg.reportedBy && msg.reportedBy.includes(userId);
 
-                        // --- NUOVO: MINI-RIASSUNTO (Visibile quando il cassetto è chiuso) ---
                         if (totalReactions > 0) {
                             let sItems = [];
                             if (thinkCount > 0) sItems.push(`<span class="inline-flex items-center">🤔<span class="ml-[2px] font-mono text-gray-400">${thinkCount}</span></span>`);
@@ -617,34 +647,37 @@
                             summaryHtml = `<span class="inline-flex items-center space-x-1.5 bg-gray-900 border border-gray-700/50 px-1.5 py-0.5 rounded text-[9px] ml-1 shadow-inner">${sItems.join('')}</span>`;
                         }
 
-                        // --- NUOVO: IL CASSETTO SEGRETO ---
-                        // Leggiamo lo stato "Aperto/Chiuso" dalla variabile globale
                         const isRevealed = window.revealedReactions.has(msg.id);
-                        
-                        // Classi CSS per l'animazione: altezza zero vs altezza 20 (max-h-20), margini e trasparenza.
                         const drawerClass = isRevealed ? 'max-h-20 opacity-100 mt-3 pt-2 border-gray-700/30' : 'max-h-0 opacity-0 mt-0 pt-0 border-transparent';
 
                         const getBtnStyle = (active) => active ? 'bg-gray-700/80 text-white rounded-md px-1.5 py-1 shadow-inner' : 'text-gray-500 hover:text-gray-300 px-1.5 py-1';
 
                         reactionsHtml = `
-                            <div id="reactions-${msg.id}" class="flex justify-between space-x-1 border-t overflow-hidden transition-all duration-300 ease-in-out ${drawerClass}">
-                                <button onclick="window.toggleReaction('${msg.id}', 'think')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasThink)}">
-                                    <span class="text-sm">🤔</span> <span class="font-mono font-bold">${thinkCount > 0 ? thinkCount : '0'}</span>
-                                </button>
-                                <button onclick="window.toggleReaction('${msg.id}', 'eye')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasEye)}">
-                                    <span class="text-sm">👁️</span> <span class="font-mono font-bold">${eyeCount > 0 ? eyeCount : '0'}</span>
-                                </button>
-                                <button onclick="window.toggleReaction('${msg.id}', 'shock')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasShock)}">
-                                    <span class="text-sm">😱</span> <span class="font-mono font-bold">${shockCount > 0 ? shockCount : '0'}</span>
-                                </button>
-                                <button onclick="window.toggleReaction('${msg.id}', 'heart')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasHeart)}">
-                                    <span class="text-sm">❤️</span> <span class="font-mono font-bold">${heartCount > 0 ? heartCount : '0'}</span>
-                                </button>
+                            <div id="reactions-${msg.id}" class="flex justify-between items-center border-t overflow-hidden transition-all duration-300 ease-in-out ${drawerClass}">
+                                <div class="flex space-x-1">
+                                    <button onclick="window.toggleReaction('${msg.id}', 'think')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasThink)}">
+                                        <span class="text-sm">🤔</span> <span class="font-mono font-bold">${thinkCount > 0 ? thinkCount : '0'}</span>
+                                    </button>
+                                    <button onclick="window.toggleReaction('${msg.id}', 'eye')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasEye)}">
+                                        <span class="text-sm">👁️</span> <span class="font-mono font-bold">${eyeCount > 0 ? eyeCount : '0'}</span>
+                                    </button>
+                                    <button onclick="window.toggleReaction('${msg.id}', 'shock')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasShock)}">
+                                        <span class="text-sm">😱</span> <span class="font-mono font-bold">${shockCount > 0 ? shockCount : '0'}</span>
+                                    </button>
+                                    <button onclick="window.toggleReaction('${msg.id}', 'heart')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasHeart)}">
+                                        <span class="text-sm">❤️</span> <span class="font-mono font-bold">${heartCount > 0 ? heartCount : '0'}</span>
+                                    </button>
+                                </div>
+                                <!-- NUOVO: Tasto Segnala (a destra, separato da una riga) -->
+                                <div class="pl-2 ml-1 border-l border-gray-700/50">
+                                    <button onclick="window.reportMessage('${msg.id}')" class="flex items-center justify-center p-1 transition-colors ${hasReported ? 'text-red-500/50 cursor-not-allowed' : 'text-gray-500 hover:text-red-400'}" title="Segnala Messaggio">
+                                        <span class="text-sm">🚩</span>
+                                    </button>
+                                </div>
                             </div>
                         `;
                     }
 
-                    // Aggiunto summaryHtml (il mini-badge) a destra della data e del raggio
                     let html = isUnlocked ? 
                         `${delBtn}
                          <p class="text-xs mb-2 pr-8 leading-relaxed ${ageStyle.classes.includes('text-gray-500') ? 'text-gray-500' : 'text-gray-300'} opacity-80">
@@ -660,22 +693,18 @@
                     div.style.opacity = !isUnlocked ? '1' : ageStyle.opacity;
                     div.innerHTML = html;
                     
-                    // --- NUOVO: LOGICA DEL TOCCO (Tap per aprire/chiudere) ---
                     if (isUnlocked) {
                         div.classList.add('cursor-pointer');
                         div.onclick = (e) => {
-                            // Se premiamo sui pulsantini interni o sul cestino, non dobbiamo chiudere/aprire il cassetto
                             if (!e.target.closest('button')) {
                                 const bar = document.getElementById(`reactions-${msg.id}`);
                                 if (!bar) return;
                                 
                                 if (window.revealedReactions.has(msg.id)) {
-                                    // Chiudi
                                     window.revealedReactions.delete(msg.id);
                                     bar.classList.remove('max-h-20', 'opacity-100', 'mt-3', 'pt-2', 'border-gray-700/30');
                                     bar.classList.add('max-h-0', 'opacity-0', 'mt-0', 'pt-0', 'border-transparent');
                                 } else {
-                                    // Apri
                                     window.revealedReactions.add(msg.id);
                                     bar.classList.remove('max-h-0', 'opacity-0', 'mt-0', 'pt-0', 'border-transparent');
                                     bar.classList.add('max-h-20', 'opacity-100', 'mt-3', 'pt-2', 'border-gray-700/30');
