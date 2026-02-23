@@ -243,7 +243,7 @@
         let locationError = null;
         let updateInterval = null; 
 
-        // Inizializziamo il set per ricordare quali messaggi abbiamo "svelato"
+        // Inizializziamo il set per ricordare quali messaggi hanno il cassetto "svelato"
         window.revealedReactions = window.revealedReactions || new Set();
 
         // --- Elementi DOM ---
@@ -514,7 +514,6 @@
                     unlockTimestamp: calculateUnlockTime(),
                     expireAt: calculateTTL(),
                     radius: radiusValue,
-                    // Inizializzate le 4 nuove reazioni
                     reactions: { think: [], eye: [], shock: [], heart: [] } 
                 });
                 messageInput.value = '';
@@ -589,10 +588,10 @@
                     const ageStyle = getAgeStyle(msg.timestamp, isNewest);
 
                     let reactionsHtml = '';
+                    let summaryHtml = '';
                     let totalReactions = 0;
 
                     if (isUnlocked) {
-                        // Inizializzo l'oggetto per supportare anche le vecchie bottiglie senza crashare
                         const reactions = msg.reactions || { think: [], eye: [], shock: [], heart: [] };
                         
                         const thinkCount = reactions.think ? reactions.think.length : 0;
@@ -607,15 +606,28 @@
                         const hasShock = reactions.shock && reactions.shock.includes(userId);
                         const hasHeart = reactions.heart && reactions.heart.includes(userId);
 
-                        // Controlla se nascondere o mostrare la barra
-                        const isRevealed = totalReactions > 0 || (window.revealedReactions && window.revealedReactions.has(msg.id));
-                        const hiddenClass = isRevealed ? '' : 'hidden';
+                        // --- NUOVO: MINI-RIASSUNTO (Visibile quando il cassetto è chiuso) ---
+                        if (totalReactions > 0) {
+                            let sItems = [];
+                            if (thinkCount > 0) sItems.push(`<span class="inline-flex items-center">🤔<span class="ml-[2px] font-mono text-gray-400">${thinkCount}</span></span>`);
+                            if (eyeCount > 0) sItems.push(`<span class="inline-flex items-center">👁️<span class="ml-[2px] font-mono text-gray-400">${eyeCount}</span></span>`);
+                            if (shockCount > 0) sItems.push(`<span class="inline-flex items-center">😱<span class="ml-[2px] font-mono text-gray-400">${shockCount}</span></span>`);
+                            if (heartCount > 0) sItems.push(`<span class="inline-flex items-center">❤️<span class="ml-[2px] font-mono text-gray-400">${heartCount}</span></span>`);
+                            
+                            summaryHtml = `<span class="inline-flex items-center space-x-1.5 bg-gray-900 border border-gray-700/50 px-1.5 py-0.5 rounded text-[9px] ml-1 shadow-inner">${sItems.join('')}</span>`;
+                        }
+
+                        // --- NUOVO: IL CASSETTO SEGRETO ---
+                        // Leggiamo lo stato "Aperto/Chiuso" dalla variabile globale
+                        const isRevealed = window.revealedReactions.has(msg.id);
+                        
+                        // Classi CSS per l'animazione: altezza zero vs altezza 20 (max-h-20), margini e trasparenza.
+                        const drawerClass = isRevealed ? 'max-h-20 opacity-100 mt-3 pt-2 border-gray-700/30' : 'max-h-0 opacity-0 mt-0 pt-0 border-transparent';
 
                         const getBtnStyle = (active) => active ? 'bg-gray-700/80 text-white rounded-md px-1.5 py-1 shadow-inner' : 'text-gray-500 hover:text-gray-300 px-1.5 py-1';
 
-                        // Nuovo Layout a 4 pulsanti: 🤔 | 👁️ | 😱 | ❤️
                         reactionsHtml = `
-                            <div id="reactions-${msg.id}" class="mt-3 flex justify-between space-x-1 border-t border-gray-700/30 pt-2 transition-all duration-300 ${hiddenClass}">
+                            <div id="reactions-${msg.id}" class="flex justify-between space-x-1 border-t overflow-hidden transition-all duration-300 ease-in-out ${drawerClass}">
                                 <button onclick="window.toggleReaction('${msg.id}', 'think')" class="flex items-center space-x-1.5 text-[11px] transition-colors ${getBtnStyle(hasThink)}">
                                     <span class="text-sm">🤔</span> <span class="font-mono font-bold">${thinkCount > 0 ? thinkCount : '0'}</span>
                                 </button>
@@ -632,8 +644,14 @@
                         `;
                     }
 
+                    // Aggiunto summaryHtml (il mini-badge) a destra della data e del raggio
                     let html = isUnlocked ? 
-                        `${delBtn}<p class="text-xs mb-2 italic pr-8 ${ageStyle.classes.includes('text-gray-500') ? 'text-gray-500' : 'text-gray-300'} opacity-80">Da <span class="font-mono text-xs text-yellow-400">${isOwner?'Te':'Anonimo'}</span> il ${dateStr} ${radiusBadge}</p><div class="border-l-4 pl-3 pr-2 border-green-500/50"><p class="text-lg break-words">${msg.message}</p></div>${reactionsHtml}` :
+                        `${delBtn}
+                         <p class="text-xs mb-2 pr-8 leading-relaxed ${ageStyle.classes.includes('text-gray-500') ? 'text-gray-500' : 'text-gray-300'} opacity-80">
+                            <span class="italic">Da</span> <span class="font-mono text-xs text-yellow-400">${isOwner?'Te':'Anonimo'}</span> <span class="italic">il ${dateStr}</span> ${radiusBadge} ${summaryHtml}
+                         </p>
+                         <div class="border-l-4 pl-3 pr-2 border-green-500/50"><p class="text-lg break-words">${msg.message}</p></div>
+                         ${reactionsHtml}` :
                         `${delBtn}<div class="pr-8"><p class="text-sm font-semibold text-red-400 flex items-center space-x-2">${getIcon('clock')} APERTURA TRA: <span class="text-lg font-bold text-red-300 ml-1">${formatTimeRemaining(msg.unlockTimestamp - now)}</span></p></div>`;
                     
                     const div = document.createElement('div');
@@ -642,14 +660,26 @@
                     div.style.opacity = !isUnlocked ? '1' : ageStyle.opacity;
                     div.innerHTML = html;
                     
-                    // Aggiungiamo l'evento click per "svelare" le reazioni
-                    if (isUnlocked && totalReactions === 0) {
+                    // --- NUOVO: LOGICA DEL TOCCO (Tap per aprire/chiudere) ---
+                    if (isUnlocked) {
                         div.classList.add('cursor-pointer');
                         div.onclick = (e) => {
+                            // Se premiamo sui pulsantini interni o sul cestino, non dobbiamo chiudere/aprire il cassetto
                             if (!e.target.closest('button')) {
-                                window.revealedReactions.add(msg.id);
                                 const bar = document.getElementById(`reactions-${msg.id}`);
-                                if (bar) bar.classList.remove('hidden');
+                                if (!bar) return;
+                                
+                                if (window.revealedReactions.has(msg.id)) {
+                                    // Chiudi
+                                    window.revealedReactions.delete(msg.id);
+                                    bar.classList.remove('max-h-20', 'opacity-100', 'mt-3', 'pt-2', 'border-gray-700/30');
+                                    bar.classList.add('max-h-0', 'opacity-0', 'mt-0', 'pt-0', 'border-transparent');
+                                } else {
+                                    // Apri
+                                    window.revealedReactions.add(msg.id);
+                                    bar.classList.remove('max-h-0', 'opacity-0', 'mt-0', 'pt-0', 'border-transparent');
+                                    bar.classList.add('max-h-20', 'opacity-100', 'mt-3', 'pt-2', 'border-gray-700/30');
+                                }
                             }
                         };
                     }
