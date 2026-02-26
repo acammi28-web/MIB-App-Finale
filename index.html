@@ -64,6 +64,64 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'/%3E%3C/svg%3E");
             background-size: contain; background-repeat: no-repeat; vertical-align: text-bottom;
         }
+
+        /* --- ANIMAZIONE E STILI DEL RADAR - SOLUZIONE BLINDATA --- */
+        @keyframes sweep {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .radar-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px auto;
+            border-radius: 50%;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            background: rgba(17, 24, 39, 0.8);
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.15);
+            /* Importante per far sì che i figli posizionati in assoluto siano tagliati correttamente */
+            -webkit-mask-image: -webkit-radial-gradient(white, black); 
+        }
+        
+        /* Il raggio rotante vero e proprio */
+        .radar-beam {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            /* Origine in alto a sinistra (che ora è il centro grazie a top/left 50%) */
+            transform-origin: 0 0;
+            /* Creiamo uno spicchio con i bordi trasparenti e uno verde */
+            background: linear-gradient(90deg, rgba(74,222,128,0.6) 0%, transparent 50%);
+            animation: sweep 2s linear infinite;
+            /* Assicuriamo l'accelerazione hardware per la rotazione fluida */
+            will-change: transform;
+            -webkit-transform: translateZ(0);
+        }
+
+        .radar-container::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 4px; height: 4px;
+            background: #4ade80;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px 2px #4ade80;
+            z-index: 10;
+        }
+        .radar-circle {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            z-index: 5;
+        }
+        .radar-circle-1 { width: 30px; height: 30px; }
+        .radar-circle-2 { width: 55px; height: 55px; }
     </style>
 </head>
 <body class="text-white">
@@ -515,7 +573,7 @@
                     expireAt: calculateTTL(),
                     radius: radiusValue,
                     reactions: { think: [], eye: [], shock: [], heart: [] },
-                    reportedBy: [] // NUOVO: Array per l'auto-moderazione
+                    reportedBy: [] 
                 });
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
@@ -554,7 +612,6 @@
             }
         };
 
-        // --- NUOVO: Funzione per Segnalare (Auto-Moderazione) ---
         window.reportMessage = async (messageId) => {
             if (!db || !userId) return;
             const msg = messagesList.messages.find(m => m.id === messageId);
@@ -566,7 +623,8 @@
                 return;
             }
 
-            if (!confirm("⚠️ Vuoi segnalare questo messaggio per contenuti inopportuni o offensivi? \n\nSe un messaggio riceve 3 segnalazioni, verrà rimosso automaticamente.")) return;
+            // MODIFICATO: Limite abbassato a 2 per il test
+            if (!confirm("⚠️ Vuoi segnalare questo messaggio per contenuti inopportuni o offensivi? \n\nSe un messaggio riceve 2 segnalazioni, verrà rimosso automaticamente.")) return;
 
             try {
                 const docRef = doc(db, `artifacts/${USER_APP_ID}/public/data/bottles`, messageId);
@@ -575,6 +633,41 @@
                 console.error("Errore segnalazione", e);
             }
         };
+
+        async function setupLocalNotifications() {
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+                const LocalNotifications = window.Capacitor.Plugins.LocalNotifications;
+                
+                try {
+                    let permStatus = await LocalNotifications.checkPermissions();
+                    if (permStatus.display !== 'granted') {
+                        permStatus = await LocalNotifications.requestPermissions();
+                    }
+
+                    if (permStatus.display === 'granted') {
+                        await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
+
+                        const msIn48Hours = 48 * 60 * 60 * 1000;
+                        const scheduleDate = new Date(Date.now() + msIn48Hours); 
+
+                        await LocalNotifications.schedule({
+                            notifications: [
+                                {
+                                    title: "Segnali rilevati",
+                                    body: "M.I.B.: Qualcuno potrebbe aver lasciato una bottiglia nei paraggi...",
+                                    id: 1,
+                                    schedule: { at: scheduleDate },
+                                    sound: null
+                                }
+                            ]
+                        });
+                        console.log("Notifica programmata per:", scheduleDate);
+                    }
+                } catch (e) {
+                    console.error("Errore notifiche locali:", e);
+                }
+            }
+        }
 
         function setupDbListener() {
             const q = query(collection(db, `artifacts/${USER_APP_ID}/public/data/bottles`));
@@ -586,10 +679,9 @@
                 const now = Date.now();
                 
                 const visible = messagesList.messages.filter(msg => {
-                    // --- NUOVO: FILTRO AUTO-MODERAZIONE ---
-                    // Se il messaggio ha 3 o più segnalazioni, scompare dal feed.
+                    // MODIFICATO: Limite abbassato a 2 per il ban
                     const reportsCount = msg.reportedBy ? msg.reportedBy.length : 0;
-                    if (reportsCount >= 3) return false;
+                    if (reportsCount >= 2) return false;
 
                     const radius = msg.radius || PROXIMITY_RADIUS_METERS;
                     const dist = getDistance(location.lat, location.lng, msg.latitude, msg.longitude);
@@ -599,8 +691,51 @@
                 messagesList.innerHTML = '';
                 bottlesHeader.textContent = `Bottiglie Trovate (${visible.filter(m => m.unlockTimestamp <= now).length})`;
                 
+                // --- LOGICA DEL RADAR QUANDO NON CI SONO BOTTIGLIE ---
                 if (visible.length === 0) {
-                    messagesList.innerHTML = `<div class="p-5 bg-gray-800 rounded-xl text-center text-gray-400 border border-dashed border-gray-700">Nessuna bottiglia qui.</div>`;
+                    // Cerchiamo bottiglie valide fuori dal nostro raggio ma entro i 5km
+                    const outOfRange = messagesList.messages.filter(msg => {
+                        const reportsCount = msg.reportedBy ? msg.reportedBy.length : 0;
+                        if (reportsCount >= 2) return false; // Ignora le bannate
+                        
+                        const radius = msg.radius || PROXIMITY_RADIUS_METERS;
+                        const dist = getDistance(location.lat, location.lng, msg.latitude, msg.longitude);
+                        return dist > radius; // Prendi solo quelle fuori dal raggio
+                    });
+
+                    if (outOfRange.length > 0) {
+                        // Trova la più vicina in assoluto
+                        let minObj = outOfRange.reduce((min, p) => {
+                            const dist = getDistance(location.lat, location.lng, p.latitude, p.longitude);
+                            return dist < min.dist ? {dist: dist, msg: p} : min;
+                        }, {dist: Infinity, msg: null});
+
+                        const nearestDist = minObj.dist;
+
+                        // Se la bottiglia più vicina è entro 5km (5000 metri) scatta il Radar
+                        if (nearestDist <= 5000) {
+                            messagesList.innerHTML = `
+                                <div class="p-6 bg-gray-900 rounded-xl text-center border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.1)] relative overflow-hidden mt-4">
+                                    <div class="radar-container">
+                                        <div class="radar-beam"></div>
+                                        <div class="radar-circle radar-circle-1"></div>
+                                        <div class="radar-circle radar-circle-2"></div>
+                                    </div>
+                                    <div class="relative z-10">
+                                        <h3 class="text-green-400 font-bold text-lg mb-1 tracking-widest">SEGNALE RILEVATO</h3>
+                                        <p class="text-gray-400 text-xs mb-3 leading-relaxed px-2">Nessuna bottiglia nel tuo raggio, ma il radar capta un'anomalia...</p>
+                                        <p class="text-green-300/90 text-sm font-mono bg-green-900/40 inline-block px-3 py-1.5 rounded border border-green-500/30 shadow-inner">
+                                            Distanza: ~<b class="text-green-400">${Math.round(nearestDist)} m</b>
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                            return; // Usciamo, abbiamo stampato il radar
+                        }
+                    }
+
+                    // Se non ci sono bottiglie nemmeno entro 5km
+                    messagesList.innerHTML = `<div class="p-5 bg-gray-800 rounded-xl text-center text-gray-500 border border-dashed border-gray-700">Nessuna bottiglia qui. Il radar è silente.</div>`;
                     return;
                 }
 
@@ -634,7 +769,6 @@
                         const hasShock = reactions.shock && reactions.shock.includes(userId);
                         const hasHeart = reactions.heart && reactions.heart.includes(userId);
                         
-                        // Controllo se l'utente attuale ha segnalato il messaggio
                         const hasReported = msg.reportedBy && msg.reportedBy.includes(userId);
 
                         if (totalReactions > 0) {
@@ -668,7 +802,6 @@
                                         <span class="text-sm">❤️</span> <span class="font-mono font-bold">${heartCount > 0 ? heartCount : '0'}</span>
                                     </button>
                                 </div>
-                                <!-- NUOVO: Tasto Segnala (a destra, separato da una riga) -->
                                 <div class="pl-2 ml-1 border-l border-gray-700/50">
                                     <button onclick="window.reportMessage('${msg.id}')" class="flex items-center justify-center p-1 transition-colors ${hasReported ? 'text-red-500/50 cursor-not-allowed' : 'text-gray-500 hover:text-red-400'}" title="Segnala Messaggio">
                                         <span class="text-sm">🚩</span>
@@ -725,6 +858,7 @@
 
         window.onload = function() {
             initFirebaseAndAuth();
+            setupLocalNotifications(); // NUOVO: Avvia il timer della notifica all'avvio
             document.getElementById('send-button').addEventListener('click', handleSendMessage);
             document.getElementById('message-input').addEventListener('input', updateUIState);
             document.getElementById('delay-value').addEventListener('input', updateUIState);
