@@ -65,63 +65,51 @@
             background-size: contain; background-repeat: no-repeat; vertical-align: text-bottom;
         }
 
-        /* --- ANIMAZIONE E STILI DEL RADAR - SOLUZIONE BLINDATA --- */
-        @keyframes sweep {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        /* --- ANIMAZIONE E STILI DEL SONAR --- */
+        @keyframes sonar-wave {
+            0% { 
+                transform: translate(-50%, -50%) scale(0.1); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 0; 
+            }
         }
-        .radar-container {
+        .sonar-container {
             position: relative;
             width: 80px;
             height: 80px;
             margin: 0 auto 15px auto;
-            border-radius: 50%;
-            border: 1px solid rgba(74, 222, 128, 0.4);
-            background: rgba(17, 24, 39, 0.8);
-            overflow: hidden;
-            box-shadow: 0 0 15px rgba(74, 222, 128, 0.15);
-            /* Importante per far sì che i figli posizionati in assoluto siano tagliati correttamente */
-            -webkit-mask-image: -webkit-radial-gradient(white, black); 
         }
-        
-        /* Il raggio rotante vero e proprio */
-        .radar-beam {
+        .sonar-center {
             position: absolute;
-            top: 50%;
+            top: 50%; 
             left: 50%;
-            width: 100%;
-            height: 100%;
-            /* Origine in alto a sinistra (che ora è il centro grazie a top/left 50%) */
-            transform-origin: 0 0;
-            /* Creiamo uno spicchio con i bordi trasparenti e uno verde */
-            background: linear-gradient(90deg, rgba(74,222,128,0.6) 0%, transparent 50%);
-            animation: sweep 2s linear infinite;
-            /* Assicuriamo l'accelerazione hardware per la rotazione fluida */
-            will-change: transform;
-            -webkit-transform: translateZ(0);
-        }
-
-        .radar-container::after {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 4px; height: 4px;
+            width: 8px; 
+            height: 8px;
             background: #4ade80;
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 8px 2px #4ade80;
+            box-shadow: 0 0 10px 2px #4ade80;
             z-index: 10;
         }
-        .radar-circle {
+        .sonar-wave {
             position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+            top: 50%; 
+            left: 50%;
+            width: 80px; 
+            height: 80px;
             border-radius: 50%;
-            border: 1px solid rgba(74, 222, 128, 0.2);
-            z-index: 5;
+            border: 2px solid #4ade80;
+            opacity: 0;
+            animation: sonar-wave 4.5s linear infinite; /* Rallentato da 3s a 4.5s */
+            /* Forza hardware acceleration per non laggare MAI */
+            will-change: transform, opacity; 
         }
-        .radar-circle-1 { width: 30px; height: 30px; }
-        .radar-circle-2 { width: 55px; height: 55px; }
+        .sonar-wave-1 { animation-delay: 0s; }
+        .sonar-wave-2 { animation-delay: 1.5s; } /* Rallentato da 1s a 1.5s */
+        .sonar-wave-3 { animation-delay: 3s; }   /* Rallentato da 2s a 3s */
     </style>
 </head>
 <body class="text-white">
@@ -623,7 +611,6 @@
                 return;
             }
 
-            // MODIFICATO: Limite abbassato a 2 per il test
             if (!confirm("⚠️ Vuoi segnalare questo messaggio per contenuti inopportuni o offensivi? \n\nSe un messaggio riceve 2 segnalazioni, verrà rimosso automaticamente.")) return;
 
             try {
@@ -679,7 +666,6 @@
                 const now = Date.now();
                 
                 const visible = messagesList.messages.filter(msg => {
-                    // MODIFICATO: Limite abbassato a 2 per il ban
                     const reportsCount = msg.reportedBy ? msg.reportedBy.length : 0;
                     if (reportsCount >= 2) return false;
 
@@ -688,23 +674,20 @@
                     return dist <= radius;
                 }).sort((a,b) => b.timestamp - a.timestamp);
                 
-                messagesList.innerHTML = '';
                 bottlesHeader.textContent = `Bottiglie Trovate (${visible.filter(m => m.unlockTimestamp <= now).length})`;
                 
-                // --- LOGICA DEL RADAR QUANDO NON CI SONO BOTTIGLIE ---
+                // --- LOGICA DEL SONAR QUANDO NON CI SONO BOTTIGLIE ---
                 if (visible.length === 0) {
-                    // Cerchiamo bottiglie valide fuori dal nostro raggio ma entro i 5km
                     const outOfRange = messagesList.messages.filter(msg => {
                         const reportsCount = msg.reportedBy ? msg.reportedBy.length : 0;
-                        if (reportsCount >= 2) return false; // Ignora le bannate
+                        if (reportsCount >= 2) return false; 
                         
                         const radius = msg.radius || PROXIMITY_RADIUS_METERS;
                         const dist = getDistance(location.lat, location.lng, msg.latitude, msg.longitude);
-                        return dist > radius; // Prendi solo quelle fuori dal raggio
+                        return dist > radius; 
                     });
 
                     if (outOfRange.length > 0) {
-                        // Trova la più vicina in assoluto
                         let minObj = outOfRange.reduce((min, p) => {
                             const dist = getDistance(location.lat, location.lng, p.latitude, p.longitude);
                             return dist < min.dist ? {dist: dist, msg: p} : min;
@@ -712,32 +695,46 @@
 
                         const nearestDist = minObj.dist;
 
-                        // Se la bottiglia più vicina è entro 5km (5000 metri) scatta il Radar
                         if (nearestDist <= 5000) {
+                            // FIX: Controlla se il sonar è già attivo. Se sì, aggiorna solo la distanza.
+                            const existingSonar = document.getElementById('sonar-view');
+                            if (existingSonar) {
+                                document.getElementById('sonar-dist-val').textContent = Math.round(nearestDist) + ' m';
+                                return; // Esce senza ricreare l'HTML
+                            }
+
+                            // Impianto del Sonar HTML (Crea solo la prima volta)
                             messagesList.innerHTML = `
-                                <div class="p-6 bg-gray-900 rounded-xl text-center border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.1)] relative overflow-hidden mt-4">
-                                    <div class="radar-container">
-                                        <div class="radar-beam"></div>
-                                        <div class="radar-circle radar-circle-1"></div>
-                                        <div class="radar-circle radar-circle-2"></div>
+                                <div id="sonar-view" class="p-6 bg-gray-900 rounded-xl text-center border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.1)] relative overflow-hidden mt-4">
+                                    <div class="sonar-container">
+                                        <div class="sonar-center"></div>
+                                        <div class="sonar-wave sonar-wave-1"></div>
+                                        <div class="sonar-wave sonar-wave-2"></div>
+                                        <div class="sonar-wave sonar-wave-3"></div>
                                     </div>
                                     <div class="relative z-10">
-                                        <h3 class="text-green-400 font-bold text-lg mb-1 tracking-widest">SEGNALE RILEVATO</h3>
-                                        <p class="text-gray-400 text-xs mb-3 leading-relaxed px-2">Nessuna bottiglia nel tuo raggio, ma il radar capta un'anomalia...</p>
+                                        <h3 class="text-green-400 font-bold text-lg mb-1 tracking-widest animate-pulse">SEGNALE RILEVATO</h3>
+                                        <p class="text-gray-400 text-xs mb-3 leading-relaxed px-2">Nessuna bottiglia nel tuo raggio, ma il sonar capta un'anomalia...</p>
                                         <p class="text-green-300/90 text-sm font-mono bg-green-900/40 inline-block px-3 py-1.5 rounded border border-green-500/30 shadow-inner">
-                                            Distanza: ~<b class="text-green-400">${Math.round(nearestDist)} m</b>
+                                            Distanza: ~<b id="sonar-dist-val" class="text-green-400">${Math.round(nearestDist)} m</b>
                                         </p>
                                     </div>
                                 </div>
                             `;
-                            return; // Usciamo, abbiamo stampato il radar
+                            return;
                         }
                     }
 
-                    // Se non ci sono bottiglie nemmeno entro 5km
-                    messagesList.innerHTML = `<div class="p-5 bg-gray-800 rounded-xl text-center text-gray-500 border border-dashed border-gray-700">Nessuna bottiglia qui. Il radar è silente.</div>`;
+                    // FIX: Controlla se il blocco vuoto è già attivo.
+                    const existingEmpty = document.getElementById('empty-view');
+                    if (!existingEmpty) {
+                        messagesList.innerHTML = `<div id="empty-view" class="p-5 bg-gray-800 rounded-xl text-center text-gray-500 border border-dashed border-gray-700">Nessuna bottiglia qui. Il sonar è silente.</div>`;
+                    }
                     return;
                 }
+
+                // Svuotamento della lista solo se dobbiamo disegnare messaggi reali
+                messagesList.innerHTML = '';
 
                 visible.forEach((msg, index) => {
                     const isUnlocked = msg.unlockTimestamp <= now;
@@ -858,7 +855,7 @@
 
         window.onload = function() {
             initFirebaseAndAuth();
-            setupLocalNotifications(); // NUOVO: Avvia il timer della notifica all'avvio
+            setupLocalNotifications();
             document.getElementById('send-button').addEventListener('click', handleSendMessage);
             document.getElementById('message-input').addEventListener('input', updateUIState);
             document.getElementById('delay-value').addEventListener('input', updateUIState);
