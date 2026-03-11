@@ -41,78 +41,148 @@
             background-color: #111827; 
             min-height: 100vh;
         }
-
-        /* Stile per il banner iOS */
-        #ios-install-prompt {
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
-            animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            border-top: 1px solid #374151;
-        }
-        @keyframes slide-up {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
         
-        /* Icone Onboarding iOS */
+        /* --- STILI ONBOARDING E POPUP --- */
         .safari-share {
-            display: inline-block; width: 20px; height: 20px;
+            display: inline-block; width: 24px; height: 24px;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50' enable-background='new 0 0 50 50'%3E%3Cpath fill='%233b82f6' d='M30.3,13.7L25,8.4l-5.3,5.3l-1.4-1.4L25,5.6l6.7,6.7L30.3,13.7z'/%3E%3Cpath fill='%233b82f6' d='M24,7v21h2V7H24z'/%3E%3Cpath fill='%233b82f6' d='M35,44H15c-1.7,0-3-1.3-3-3V22c0-1.7,1.3-3,3-3h7v2h-7c-0.6,0-1,0.4-1,1v19c0,0.6,0.4,1,1,1h20c0.6,0,1-0.4,1-1V22 c0-0.6-0.4-1-1-1h-7v-2h7c1.7,0,3,1.3,3,3v19C38,42.7,36.7,44,35,44z'/%3E%3C/svg%3E");
-            background-size: contain; background-repeat: no-repeat; vertical-align: text-bottom;
+            background-size: contain; background-repeat: no-repeat; vertical-align: middle;
         }
         .chrome-share {
-            display: inline-block; width: 20px; height: 20px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'/%3E%3C/svg%3E");
-            background-size: contain; background-repeat: no-repeat; vertical-align: text-bottom;
+            display: inline-block; width: 24px; height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'/%3E%3C/svg%3E");
+            background-size: contain; background-repeat: no-repeat; vertical-align: middle;
         }
+        .add-to-home {
+            display: inline-block; width: 24px; height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='12' y1='8' x2='12' y2='16'/%3E%3Cline x1='8' y1='12' x2='16' y2='12'/%3E%3C/svg%3E");
+            background-size: contain; background-repeat: no-repeat; vertical-align: middle;
+        }
+
+        @keyframes bounce-down {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+        @keyframes bounce-up-right {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(5px, -10px); }
+        }
+        .animate-bounce-down { animation: bounce-down 1.5s infinite; }
+        .animate-bounce-up-right { animation: bounce-up-right 1.5s infinite; }
+
+        .step-panel { transition: opacity 0.3s ease, transform 0.3s ease; }
+        .hidden-step { opacity: 0; pointer-events: none; transform: translateX(20px); position: absolute; inset: 0; }
+        .active-step { opacity: 1; pointer-events: auto; transform: translateX(0); position: absolute; inset: 0; z-index: 10; }
 
         /* --- ANIMAZIONE E STILI DEL SONAR --- */
         @keyframes sonar-wave {
-            0% { 
-                transform: translate(-50%, -50%) scale(0.1); 
-                opacity: 1; 
-            }
-            100% { 
-                transform: translate(-50%, -50%) scale(1); 
-                opacity: 0; 
-            }
+            0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
         }
-        .sonar-container {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px auto;
-        }
-        .sonar-center {
-            position: absolute;
-            top: 50%; 
-            left: 50%;
-            width: 8px; 
-            height: 8px;
-            background: #4ade80;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px 2px #4ade80;
-            z-index: 10;
-        }
-        .sonar-wave {
-            position: absolute;
-            top: 50%; 
-            left: 50%;
-            width: 80px; 
-            height: 80px;
-            border-radius: 50%;
-            border: 2px solid #4ade80;
-            opacity: 0;
-            animation: sonar-wave 4.5s linear infinite; /* Rallentato da 3s a 4.5s */
-            /* Forza hardware acceleration per non laggare MAI */
-            will-change: transform, opacity; 
-        }
+        .sonar-container { position: relative; width: 80px; height: 80px; margin: 0 auto 15px auto; }
+        .sonar-center { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: #4ade80; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px 2px #4ade80; z-index: 10; }
+        .sonar-wave { position: absolute; top: 50%; left: 50%; width: 80px; height: 80px; border-radius: 50%; border: 2px solid #4ade80; opacity: 0; animation: sonar-wave 4.5s linear infinite; will-change: transform, opacity; }
         .sonar-wave-1 { animation-delay: 0s; }
-        .sonar-wave-2 { animation-delay: 1.5s; } /* Rallentato da 1s a 1.5s */
-        .sonar-wave-3 { animation-delay: 3s; }   /* Rallentato da 2s a 3s */
+        .sonar-wave-2 { animation-delay: 1.5s; }
+        .sonar-wave-3 { animation-delay: 3s; }
     </style>
 </head>
 <body class="text-white">
+
+    <!-- ========================================== -->
+    <!-- 1. OVERLAY ONBOARDING (Tutorial) -->
+    <!-- ========================================== -->
+    <div id="onboarding-overlay" class="hidden fixed inset-0 z-50 bg-gray-900 flex-col">
+        <div class="relative flex-1">
+            <!-- STEP 1 -->
+            <div id="step-1" class="step-panel active-step flex flex-col items-center justify-center p-8 text-center">
+                <div class="text-6xl mb-6 bg-gray-800 p-6 rounded-full shadow-[0_0_30px_rgba(74,222,128,0.2)]">🕵️‍♂️</div>
+                <h2 class="text-2xl font-bold text-green-400 mb-4 tracking-wider">Il mondo ha dei segreti.</h2>
+                <p class="text-gray-300 leading-relaxed">Intorno a te ci sono messaggi invisibili lasciati da altre persone. Noi te li mostriamo.</p>
+            </div>
+            <!-- STEP 2 -->
+            <div id="step-2" class="step-panel hidden-step flex flex-col items-center justify-center p-8 text-center">
+                <div class="text-6xl mb-6 bg-gray-800 p-6 rounded-full shadow-[0_0_30px_rgba(74,222,128,0.2)]">📍</div>
+                <h2 class="text-2xl font-bold text-green-400 mb-4 tracking-wider">La regola è una sola.</h2>
+                <p class="text-gray-300 leading-relaxed">Puoi leggere e lasciare bottiglie SOLO nel luogo in cui ti trovi fisicamente. Esci. Esplora.</p>
+            </div>
+            <!-- STEP 3 -->
+            <div id="step-3" class="step-panel hidden-step flex flex-col items-center justify-center p-8 text-center">
+                <div class="text-6xl mb-6 bg-gray-800 p-6 rounded-full shadow-[0_0_30px_rgba(74,222,128,0.2)]">🎭</div>
+                <h2 class="text-2xl font-bold text-green-400 mb-4 tracking-wider">Nessun nome. Nessuna traccia.</h2>
+                <p class="text-gray-300 leading-relaxed mb-8">Non serve registrarsi. Sei un fantasma. Quello che scrivi, resta lì per chi verrà dopo di te.</p>
+                <button onclick="window.finishOnboarding()" class="w-full py-4 bg-green-500 text-black font-bold text-lg rounded-xl shadow-lg hover:bg-green-400 transition animate-pulse">
+                    INIZIA LA CACCIA
+                </button>
+            </div>
+        </div>
+        <!-- Indicatori Navigation -->
+        <div class="h-24 flex items-center justify-between px-6 border-t border-gray-800 bg-gray-900 pb-safe">
+            <button id="prev-btn" onclick="window.prevStep()" class="text-gray-400 font-bold tracking-wider hover:text-gray-300 invisible w-20 text-left text-sm">⬅ INDIETRO</button>
+            <div class="flex space-x-2">
+                <div id="dot-1" class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                <div id="dot-2" class="w-2.5 h-2.5 rounded-full bg-gray-600 transition-colors"></div>
+                <div id="dot-3" class="w-2.5 h-2.5 rounded-full bg-gray-600 transition-colors"></div>
+            </div>
+            <button id="next-btn" onclick="window.nextStep()" class="text-green-400 font-bold tracking-wider hover:text-green-300 w-20 text-right text-sm">AVANTI ➡</button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. POPUP INSTALLAZIONE "CAMALEONTE" -->
+    <!-- ========================================== -->
+    <!-- CASO A: ANDROID -->
+    <div id="install-android" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur flex items-center justify-center p-6">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl">
+            <div class="text-5xl mb-4">🚀</div>
+            <h3 class="text-xl font-bold text-white mb-2">Sblocca l'esperienza completa</h3>
+            <p class="text-gray-400 text-sm mb-6">Il radar per scovare i segreti funziona meglio nell'app ufficiale.</p>
+            <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="w-full py-3 bg-green-600 hover:bg-green-500 transition text-white font-bold rounded-lg flex items-center justify-center space-x-2 mb-3">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a2.96 2.96 0 0 1-.607-1.745V3.56c0-.66.216-1.272.606-1.746zm11.75 11.62l3.435 3.435-.939.535c-1.332.766-3.05.69-4.22-.19l1.724-3.78zM14.93 11.26l-1.306-2.91 4.67-2.67c1.17-.666 2.888-.742 4.22.025l-7.584 5.555zm-1.76-3.83L3.106 1.258a3.02 3.02 0 0 1 1.76-.566c.866 0 1.67.355 2.254.922l6.05 6.015z"/></svg>
+                <span>Scarica l'App Android</span>
+            </a>
+            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline mt-2 p-2">Prosegui nel browser (non consigliato)</button>
+        </div>
+    </div>
+
+    <!-- CASO B: iOS SAFARI -->
+    <div id="install-safari" class="hidden fixed inset-0 z-40 bg-black/90 backdrop-blur flex flex-col justify-end p-4 pb-8">
+        <div class="bg-gray-800 border border-blue-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
+            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-5xl">🛑</div>
+            <h3 class="text-xl font-bold text-white mb-2 mt-4">Fermi tutti!</h3>
+            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per non perdere i tuoi messaggi e far funzionare il radar, <b class="text-blue-400">devi aggiungere M.I.B. al telefono</b>.</p>
+            <div class="bg-gray-900 rounded-xl p-4 text-left space-y-4 mb-4 border border-gray-700">
+                <div class="flex items-center text-sm text-gray-200">
+                    <span class="font-bold mr-2 text-blue-400">1.</span> Tocca l'icona <span class="safari-share mx-1"></span> qui sotto.
+                </div>
+                <div class="flex items-center text-sm text-gray-200">
+                    <span class="font-bold mr-2 text-blue-400">2.</span> Scorri giù e tocca <span class="add-to-home mx-1"></span> <b>Aggiungi a Home</b>.
+                </div>
+            </div>
+            <div class="text-blue-500 text-4xl animate-bounce-down mb-2">⬇️</div>
+            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline p-2 mt-2">Continua su Safari (perderai i dati uscendo)</button>
+        </div>
+    </div>
+
+    <!-- CASO C: iOS CHROME -->
+    <div id="install-chrome" class="hidden fixed inset-0 z-40 bg-black/90 backdrop-blur flex flex-col justify-start p-4 pt-12">
+        <div class="bg-gray-800 border border-gray-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
+            <div class="absolute -top-10 right-4 text-gray-400 text-4xl animate-bounce-up-right">↗️</div>
+            <div class="text-5xl mb-4 mt-2">🛑</div>
+            <h3 class="text-xl font-bold text-white mb-2">Fermi tutti!</h3>
+            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per non perdere i tuoi messaggi e far funzionare il radar, <b class="text-white">devi aggiungere M.I.B. al telefono</b>.</p>
+            <div class="bg-gray-900 rounded-xl p-4 text-left space-y-4 mb-4 border border-gray-700">
+                <div class="flex items-center text-sm text-gray-200">
+                    <span class="font-bold mr-2 text-white">1.</span> Tocca l'icona Condividi in alto a destra.
+                </div>
+                <div class="flex items-center text-sm text-gray-200">
+                    <span class="font-bold mr-2 text-white">2.</span> Scorri e tocca <span class="add-to-home mx-1"></span> <b>Aggiungi a Home</b>.
+                </div>
+            </div>
+            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline p-2 mt-4">Continua nel browser (perderai i dati uscendo)</button>
+        </div>
+    </div>
+
 
     <div id="app" class="w-full max-w-lg mx-auto relative pb-10">
         
@@ -145,15 +215,15 @@
                 <!-- Griglia Controlli a 3 colonne -->
                 <div class="grid grid-cols-3 gap-2 mb-2">
                     
-                    <!-- 1. Controlli Raggio (Sinistra) -->
+                    <!-- 1. Controlli Raggio (Sinistra) - Modificato default 50m -->
                     <div class="flex flex-col items-center p-1.5 bg-gray-700/50 rounded-lg border border-gray-600">
                         <div class="flex items-center space-x-1 mb-1">
                             <span class="text-[10px]">📍</span>
                             <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Raggio</span>
                         </div>
                         <select id="message-radius" class="bg-transparent border-none text-white text-xs font-bold focus:ring-0 p-0 text-center w-full" disabled>
-                            <option value="100" selected>100m</option>
-                            <option value="50">50m</option>
+                            <option value="100">100m</option>
+                            <option value="50" selected>50m</option>
                         </select>
                     </div>
 
@@ -195,14 +265,6 @@
                     <span>Imbottiglia</span>
                 </button>
             </div>
-
-             <!-- BANNER GOOGLE PLAY (Visibile solo nel web/browser Android) -->
-             <div id="android-install-banner" class="hidden mt-4">
-                <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="flex items-center justify-center space-x-2 bg-gray-800 border border-gray-600 p-2 rounded-lg hover:bg-gray-700 transition">
-                    <svg class="w-5 h-5 text-gray-300" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a2.96 2.96 0 0 1-.607-1.745V3.56c0-.66.216-1.272.606-1.746zm11.75 11.62l3.435 3.435-.939.535c-1.332.766-3.05.69-4.22-.19l1.724-3.78zM14.93 11.26l-1.306-2.91 4.67-2.67c1.17-.666 2.888-.742 4.22.025l-7.584 5.555zm-1.76-3.83L3.106 1.258a3.02 3.02 0 0 1 1.76-.566c.866 0 1.67.355 2.254.922l6.05 6.015z"/></svg>
-                    <span class="text-xs font-semibold text-gray-300">Scarica l'App Android</span>
-                </a>
-             </div>
         </div>
 
         <!-- LISTA MESSAGGI (Layout naturale senza scroll bloccato) -->
@@ -215,49 +277,6 @@
                 <div class="p-5 bg-gray-800 rounded-xl text-center text-gray-400 border border-dashed border-gray-700">
                     <svg class="w-6 h-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     Attendi l'acquisizione della posizione...
-                </div>
-            </div>
-        </div>
-        
-        <!-- BANNER ISTRUZIONI IOS (Safari & Chrome support) -->
-        <div id="ios-install-prompt" class="hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t-2 border-green-500/50 p-5 z-50">
-            <div class="flex justify-between items-start mb-3">
-                <div class="flex items-center space-x-2">
-                    <img src="icon.png?v=2" class="w-10 h-10 rounded-lg shadow-lg border border-gray-700">
-                    <div>
-                        <h3 class="text-sm font-bold text-white">Installa M.I.B.</h3>
-                        <p class="text-[10px] text-gray-400">Web App per iOS</p>
-                    </div>
-                </div>
-                <button onclick="document.getElementById('ios-install-prompt').style.display='none'" class="text-gray-400 hover:text-white p-1">✕</button>
-            </div>
-            
-            <p class="text-xs text-gray-300 mb-4 leading-relaxed">
-                Per usare l'app a schermo intero e salvare l'accesso:
-            </p>
-            
-            <!-- Istruzioni Safari -->
-            <div id="ios-safari-step" class="hidden flex items-center justify-between bg-gray-800 p-3 rounded-lg border border-gray-700">
-                <div class="flex items-center space-x-3 text-xs text-gray-200">
-                    <span>1. Tocca</span>
-                    <span class="safari-share"></span>
-                </div>
-                <div class="h-4 w-[1px] bg-gray-600"></div>
-                <div class="flex items-center space-x-2 text-xs text-gray-200">
-                    <span>2. Scegli</span>
-                    <span class="font-bold text-white">Aggiungi a Home</span>
-                </div>
-            </div>
-
-            <!-- Istruzioni Chrome -->
-            <div id="ios-chrome-step" class="hidden flex items-center justify-between bg-gray-800 p-3 rounded-lg border border-gray-700">
-                <div class="flex items-center space-x-3 text-xs text-gray-200">
-                    <span>1. Tocca <span class="chrome-share"></span> in alto a destra</span>
-                </div>
-                <div class="h-4 w-[1px] bg-gray-600"></div>
-                <div class="flex items-center space-x-2 text-xs text-gray-200">
-                    <span>2. Scegli</span>
-                    <span class="font-bold text-white">Aggiungi a Home</span>
                 </div>
             </div>
         </div>
@@ -276,7 +295,7 @@
         };
         const USER_APP_ID = "mib-app-b93cd"; 
 
-        const PROXIMITY_RADIUS_METERS = 100; // Valore di fallback
+        const PROXIMITY_RADIUS_METERS = 50; // MODIFICATO: Default 50 metri
         const PRESENCE_RADIUS_METERS = 500; 
         const PRESENCE_TIMEOUT_MS = 5 * 60 * 1000;
         const GPS_TIMEOUT_MS = 15000;
@@ -291,6 +310,111 @@
 
         // Inizializziamo il set per ricordare quali messaggi hanno il cassetto "svelato"
         window.revealedReactions = window.revealedReactions || new Set();
+
+        // --- LOGICA ONBOARDING E POPUP CAMALEONTE ---
+        let currentStep = 1;
+
+        window.updateUIOnboarding = function() {
+            document.getElementById('dot-1').classList.replace('bg-green-500', 'bg-gray-600');
+            document.getElementById('dot-2').classList.replace('bg-green-500', 'bg-gray-600');
+            document.getElementById('dot-3').classList.replace('bg-green-500', 'bg-gray-600');
+            document.getElementById(`dot-${currentStep}`).classList.replace('bg-gray-600', 'bg-green-500');
+
+            if (currentStep === 1) {
+                document.getElementById('prev-btn').classList.add('invisible');
+            } else {
+                document.getElementById('prev-btn').classList.remove('invisible');
+            }
+
+            if (currentStep === 3) {
+                document.getElementById('next-btn').style.visibility = 'hidden';
+            } else {
+                document.getElementById('next-btn').style.visibility = 'visible';
+            }
+        };
+
+        window.nextStep = function() {
+            if(currentStep === 3) return;
+            document.getElementById(`step-${currentStep}`).classList.remove('active-step');
+            document.getElementById(`step-${currentStep}`).classList.add('hidden-step');
+            currentStep++;
+            document.getElementById(`step-${currentStep}`).classList.remove('hidden-step');
+            document.getElementById(`step-${currentStep}`).classList.add('active-step');
+            window.updateUIOnboarding();
+        };
+
+        window.prevStep = function() {
+            if(currentStep === 1) return;
+            document.getElementById(`step-${currentStep}`).classList.remove('active-step');
+            document.getElementById(`step-${currentStep}`).classList.add('hidden-step');
+            currentStep--;
+            document.getElementById(`step-${currentStep}`).classList.remove('hidden-step');
+            document.getElementById(`step-${currentStep}`).classList.add('active-step');
+            window.updateUIOnboarding();
+        };
+
+        window.finishOnboarding = function() {
+            document.getElementById('onboarding-overlay').style.display = 'none';
+            localStorage.setItem('mib_onboarding_done', 'true');
+            window.triggerCamaleontePopup();
+        };
+
+        window.closePopups = function() {
+            document.getElementById('install-android').classList.add('hidden');
+            document.getElementById('install-safari').classList.add('hidden');
+            document.getElementById('install-chrome').classList.add('hidden');
+            sessionStorage.setItem('mib_popup_closed', 'true'); // Non mostrare più per questa sessione
+        };
+
+        window.triggerCamaleontePopup = function() {
+            if (sessionStorage.getItem('mib_popup_closed')) return; // Già chiuso in questa sessione
+            
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isAndroid = /android/i.test(navigator.userAgent.toLowerCase());
+            
+            // Verifica se è già installata (Standalone)
+            const isStandaloneIOS = window.navigator.standalone === true;
+            const isStandaloneAndroid = window.matchMedia('(display-mode: standalone)').matches;
+            
+            if (isIOS && !isStandaloneIOS) {
+                const isChrome = navigator.userAgent.includes("CriOS");
+                if (isChrome) {
+                    document.getElementById('install-chrome').classList.remove('hidden');
+                } else {
+                    document.getElementById('install-safari').classList.remove('hidden');
+                }
+            } else if (isAndroid && !isStandaloneAndroid) {
+                // Mostra banner Android (solo web)
+                if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('github.io') || window.location.hostname === '') {
+                    document.getElementById('install-android').classList.remove('hidden');
+                }
+            }
+        };
+
+        function handleStartupUX() {
+            const onboardingDone = localStorage.getItem('mib_onboarding_done');
+            if (!onboardingDone) {
+                document.getElementById('onboarding-overlay').classList.remove('hidden');
+                document.getElementById('onboarding-overlay').style.display = 'flex';
+            } else {
+                document.getElementById('onboarding-overlay').style.display = 'none';
+                window.triggerCamaleontePopup();
+            }
+            
+            // Raccolta Statistiche iOS Installati
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandaloneIOS = window.navigator.standalone === true;
+            if (isIOS && isStandaloneIOS) {
+                const hasCounted = localStorage.getItem('ios_install_counted_v2');
+                if (!hasCounted && db) {
+                    const statsRef = doc(db, `artifacts/${USER_APP_ID}/public/data/stats`, 'ios_installs');
+                    setDoc(statsRef, { count: increment(1) }, { merge: true })
+                        .then(() => { localStorage.setItem('ios_install_counted_v2', 'true'); })
+                        .catch((e) => {});
+                }
+            }
+        }
+        // --- FINE LOGICA ONBOARDING ---
 
         // --- Elementi DOM ---
         const locationMessageDiv = document.getElementById('location-message');
@@ -398,40 +522,6 @@
             } catch (e) { console.error("Err Presenza", e); }
         }
 
-        function checkIOSInstall() {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isStandalone = window.navigator.standalone === true;
-
-            if (isIOS && !isStandalone) {
-                const banner = document.getElementById('ios-install-prompt');
-                banner.classList.remove('hidden');
-                
-                const isChrome = navigator.userAgent.includes("CriOS");
-                if (isChrome) {
-                    document.getElementById('ios-chrome-step').classList.remove('hidden');
-                } else {
-                    document.getElementById('ios-safari-step').classList.remove('hidden');
-                }
-            } else if (!isIOS) {
-                if (window.location.hostname.includes('vercel.app')) {
-                    const androidBanner = document.getElementById('android-install-banner');
-                    if(androidBanner) androidBanner.classList.remove('hidden');
-                }
-            }
-            
-            if (isIOS && isStandalone) {
-                const hasCounted = localStorage.getItem('ios_install_counted_v2');
-                if (!hasCounted && db) {
-                    const statsRef = doc(db, `artifacts/${USER_APP_ID}/public/data/stats`, 'ios_installs');
-                    setDoc(statsRef, { count: increment(1) }, { merge: true })
-                        .then(() => {
-                            localStorage.setItem('ios_install_counted_v2', 'true');
-                        })
-                        .catch((e) => {});
-                }
-            }
-        }
-
         function setupPresenceListener() {
             if (!db || !userId) return;
             onSnapshot(query(collection(db, `artifacts/${USER_APP_ID}/public/data/presence`)), (snapshot) => {
@@ -491,8 +581,8 @@
                 db = getFirestore(app);
                 const auth = getAuth(app);
                 onAuthStateChanged(auth, (user) => {
-                    if (user) { userId = user.uid; window.fetchLocation(); checkIOSInstall(); }
-                    else { signInAnonymously(auth).then(cred => { userId = cred.user.uid; window.fetchLocation(); checkIOSInstall(); }).catch(e => { locationError="Errore Auth"; displayLocationMessage(); }); }
+                    if (user) { userId = user.uid; window.fetchLocation(); handleStartupUX(); }
+                    else { signInAnonymously(auth).then(cred => { userId = cred.user.uid; window.fetchLocation(); handleStartupUX(); }).catch(e => { locationError="Errore Auth"; displayLocationMessage(); }); }
                 });
             } catch (e) { locationError = e.message; displayLocationMessage(); }
         }
@@ -566,7 +656,7 @@
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
                 document.getElementById('ttl-days').value = ''; 
-                document.getElementById('message-radius').value = '100';
+                document.getElementById('message-radius').value = '50'; // Torna al default 50m
                 updatePresence();
                 updateUIState();
             } catch (e) { console.error(e); }
@@ -696,14 +786,12 @@
                         const nearestDist = minObj.dist;
 
                         if (nearestDist <= 5000) {
-                            // FIX: Controlla se il sonar è già attivo. Se sì, aggiorna solo la distanza.
                             const existingSonar = document.getElementById('sonar-view');
                             if (existingSonar) {
                                 document.getElementById('sonar-dist-val').textContent = Math.round(nearestDist) + ' m';
-                                return; // Esce senza ricreare l'HTML
+                                return; 
                             }
 
-                            // Impianto del Sonar HTML (Crea solo la prima volta)
                             messagesList.innerHTML = `
                                 <div id="sonar-view" class="p-6 bg-gray-900 rounded-xl text-center border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.1)] relative overflow-hidden mt-4">
                                     <div class="sonar-container">
@@ -725,7 +813,6 @@
                         }
                     }
 
-                    // FIX: Controlla se il blocco vuoto è già attivo.
                     const existingEmpty = document.getElementById('empty-view');
                     if (!existingEmpty) {
                         messagesList.innerHTML = `<div id="empty-view" class="p-5 bg-gray-800 rounded-xl text-center text-gray-500 border border-dashed border-gray-700">Nessuna bottiglia qui. Il sonar è silente.</div>`;
@@ -733,7 +820,6 @@
                     return;
                 }
 
-                // Svuotamento della lista solo se dobbiamo disegnare messaggi reali
                 messagesList.innerHTML = '';
 
                 visible.forEach((msg, index) => {
@@ -741,7 +827,7 @@
                     const isOwner = msg.userId === userId;
                     const dateStr = new Date(msg.timestamp).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                     
-                    const radiusBadge = `<span class="bg-gray-700/50 px-1.5 py-0.5 rounded text-[9px] ml-1">📍 ${msg.radius || 100}m</span>`;
+                    const radiusBadge = `<span class="bg-gray-700/50 px-1.5 py-0.5 rounded text-[9px] ml-1">📍 ${msg.radius || 50}m</span>`;
                     const delBtn = isOwner ? `<button onclick="window.deleteMessage('${msg.id}')" class="absolute top-3 right-3 p-1 text-gray-500 hover:text-red-500 z-10">${getIcon('trash')}</button>` : '';
                     
                     const isNewest = (index === 0);
