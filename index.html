@@ -291,7 +291,7 @@
             
             <div id="messages-list" class="space-y-4 pb-32">
                 <div class="p-5 bg-gray-800 rounded-xl text-center text-gray-400 border border-dashed border-gray-700">
-                    <svg class="w-6 h-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9z"/><path d="M2 12a10 10 0 0 1 10-10"/></svg>
+                    <svg class="w-6 h-6 mx-auto mb-2 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9z"/><path d="M2 12a10 10 0 0 1 10-10"/></svg>
                     Attendi l'acquisizione della posizione...
                 </div>
             </div>
@@ -303,10 +303,10 @@
     <!-- ========================================== -->
     <div id="secrets-drawer" class="fixed inset-0 z-[70] flex flex-col justify-end drawer-hidden w-full max-w-lg mx-auto font-mono">
         <!-- Overlay Scuro -->
-        <div class="drawer-overlay absolute inset-0 bg-black/90 backdrop-blur-sm cursor-pointer pointer-events-auto" onclick="window.toggleDrawer()"></div>
+        <div class="drawer-overlay absolute inset-0 bg-black/90 backdrop-blur-sm cursor-pointer" onclick="window.toggleDrawer()"></div>
         
         <!-- Contenuto del Cassetto (Terminale Grezzo) -->
-        <div class="drawer-content relative bg-black w-full h-[85vh] border-t-2 border-green-500 shadow-[0_-5px_30px_rgba(74,222,128,0.2)] flex flex-col scanlines rounded-t-lg pointer-events-auto">
+        <div class="drawer-content relative bg-black w-full h-[85vh] border-t-2 border-green-500 shadow-[0_-5px_30px_rgba(74,222,128,0.2)] flex flex-col scanlines rounded-t-lg">
             
             <!-- Header Terminale -->
             <div class="px-6 py-4 flex justify-between items-center border-b border-green-900/50 bg-black relative z-10 rounded-t-lg">
