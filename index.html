@@ -6,7 +6,6 @@
     <title>M.I.B. (Message In a Bottle) - App Finale</title>
     
     <!-- PWA e Icone per iPhone/Android/Browser -->
-    <!-- ?v=2 forza l'aggiornamento della cache delle immagini -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png?v=2">
     <link rel="icon" type="image/png" href="icon.png?v=2">
@@ -85,28 +84,37 @@
         .sonar-wave-1 { animation-delay: 0s; }
         .sonar-wave-2 { animation-delay: 1.5s; }
         .sonar-wave-3 { animation-delay: 3s; }
+
+        /* --- STILI DOSSIER SEGRETI (NUOVO) --- */
+        .drawer-overlay { transition: opacity 0.2s ease; }
+        .drawer-content { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-hidden .drawer-overlay { opacity: 0; pointer-events: none; }
+        .drawer-hidden .drawer-content { transform: translateY(100%); }
+        .drawer-visible .drawer-overlay { opacity: 1; pointer-events: auto; }
+        .drawer-visible .drawer-content { transform: translateY(0); }
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+        }
     </style>
 </head>
-<body class="text-white">
+<body class="text-white relative">
 
     <!-- ========================================== -->
     <!-- 1. OVERLAY ONBOARDING (Tutorial) -->
     <!-- ========================================== -->
-    <div id="onboarding-overlay" class="hidden fixed inset-0 z-50 bg-gray-900 flex-col">
+    <div id="onboarding-overlay" class="hidden fixed inset-0 z-[60] bg-gray-900 flex-col touch-none overscroll-none">
         <div class="relative flex-1">
-            <!-- STEP 1 -->
             <div id="step-1" class="step-panel active-step flex flex-col items-center justify-center p-8 text-center">
                 <div class="text-6xl mb-6 bg-gray-800 p-6 rounded-full shadow-[0_0_30px_rgba(74,222,128,0.2)]">🕵️‍♂️</div>
                 <h2 class="text-2xl font-bold text-green-400 mb-4 tracking-wider">Il mondo ha dei segreti.</h2>
                 <p class="text-gray-300 leading-relaxed">Intorno a te ci sono messaggi invisibili lasciati da altre persone. Noi te li mostriamo.</p>
             </div>
-            <!-- STEP 2 -->
             <div id="step-2" class="step-panel hidden-step flex flex-col items-center justify-center p-8 text-center">
                 <div class="text-6xl mb-6 bg-gray-800 p-6 rounded-full shadow-[0_0_30px_rgba(74,222,128,0.2)]">📍</div>
                 <h2 class="text-2xl font-bold text-green-400 mb-4 tracking-wider">La regola è una sola.</h2>
                 <p class="text-gray-300 leading-relaxed">Puoi leggere e lasciare bottiglie SOLO nel luogo in cui ti trovi fisicamente. Esci. Esplora.</p>
             </div>
-            <!-- STEP 3 -->
             <div id="step-3" class="step-panel hidden-step flex flex-col items-center justify-center p-8 text-center">
                 <div class="text-6xl mb-6 bg-gray-800 p-6 rounded-full shadow-[0_0_30px_rgba(74,222,128,0.2)]">🎭</div>
                 <h2 class="text-2xl font-bold text-green-400 mb-4 tracking-wider">Nessun nome. Nessuna traccia.</h2>
@@ -116,7 +124,6 @@
                 </button>
             </div>
         </div>
-        <!-- Indicatori Navigation -->
         <div class="h-24 flex items-center justify-between px-6 border-t border-gray-800 bg-gray-900 pb-safe">
             <button id="prev-btn" onclick="window.prevStep()" class="text-gray-400 font-bold tracking-wider hover:text-gray-300 invisible w-20 text-left text-sm">⬅ INDIETRO</button>
             <div class="flex space-x-2">
@@ -130,10 +137,11 @@
 
     <!-- ========================================== -->
     <!-- 2. POPUP INSTALLAZIONE "CAMALEONTE" -->
+    <!-- (Hard Wall: touch-none e overscroll-none bloccano scorrimenti strani) -->
     <!-- ========================================== -->
     <!-- CASO A: ANDROID -->
-    <div id="install-android" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur flex items-center justify-center p-6">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl">
+    <div id="install-android" class="hidden fixed inset-0 z-[60] bg-black/90 backdrop-blur flex items-center justify-center p-6 touch-none overscroll-none">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl relative">
             <div class="text-5xl mb-4">🚀</div>
             <h3 class="text-xl font-bold text-white mb-2">Sblocca l'esperienza completa</h3>
             <p class="text-gray-400 text-sm mb-6">Il radar per scovare i segreti funziona meglio nell'app ufficiale.</p>
@@ -141,12 +149,12 @@
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a2.96 2.96 0 0 1-.607-1.745V3.56c0-.66.216-1.272.606-1.746zm11.75 11.62l3.435 3.435-.939.535c-1.332.766-3.05.69-4.22-.19l1.724-3.78zM14.93 11.26l-1.306-2.91 4.67-2.67c1.17-.666 2.888-.742 4.22.025l-7.584 5.555zm-1.76-3.83L3.106 1.258a3.02 3.02 0 0 1 1.76-.566c.866 0 1.67.355 2.254.922l6.05 6.015z"/></svg>
                 <span>Scarica l'App Android</span>
             </a>
-            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline mt-2 p-2">Prosegui nel browser (non consigliato)</button>
+            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline mt-2 p-2 relative z-10">Prosegui nel browser (non consigliato)</button>
         </div>
     </div>
 
     <!-- CASO B: iOS SAFARI -->
-    <div id="install-safari" class="hidden fixed inset-0 z-40 bg-black/90 backdrop-blur flex flex-col justify-end p-4 pb-8">
+    <div id="install-safari" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur flex flex-col justify-end p-4 pb-8 touch-none overscroll-none">
         <div class="bg-gray-800 border border-blue-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
             <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-5xl">🛑</div>
             <h3 class="text-xl font-bold text-white mb-2 mt-4">Fermi tutti!</h3>
@@ -160,12 +168,12 @@
                 </div>
             </div>
             <div class="text-blue-500 text-4xl animate-bounce-down mb-2">⬇️</div>
-            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline p-2 mt-2">Continua su Safari (perderai i dati uscendo)</button>
+            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline p-2 mt-2 relative z-10">Continua su Safari (perderai i dati uscendo)</button>
         </div>
     </div>
 
     <!-- CASO C: iOS CHROME -->
-    <div id="install-chrome" class="hidden fixed inset-0 z-40 bg-black/90 backdrop-blur flex flex-col justify-start p-4 pt-12">
+    <div id="install-chrome" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur flex flex-col justify-start p-4 pt-12 touch-none overscroll-none">
         <div class="bg-gray-800 border border-gray-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
             <div class="absolute -top-10 right-4 text-gray-400 text-4xl animate-bounce-up-right">↗️</div>
             <div class="text-5xl mb-4 mt-2">🛑</div>
@@ -179,26 +187,35 @@
                     <span class="font-bold mr-2 text-white">2.</span> Scorri e tocca <span class="add-to-home mx-1"></span> <b>Aggiungi a Home</b>.
                 </div>
             </div>
-            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline p-2 mt-4">Continua nel browser (perderai i dati uscendo)</button>
+            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline p-2 mt-4 relative z-10">Continua nel browser (perderai i dati uscendo)</button>
         </div>
     </div>
 
-
+    <!-- ========================================== -->
+    <!-- CONTENITORE APP PRINCIPALE -->
+    <!-- ========================================== -->
     <div id="app" class="w-full max-w-lg mx-auto relative pb-10">
         
-        <!-- PARTE SUPERIORE (Scorre via quando scendi) -->
+        <!-- PARTE SUPERIORE (Header e Inserimento) -->
         <div class="p-4 sm:p-8 pb-2">
+            <!-- Header con Titolo e Bottone Segreti -->
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-bold text-center text-green-500 flex items-center tracking-widest">
                     <svg class="w-7 h-7 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     <span>M.I.B.</span>
                 </h1>
                 
-                <!-- Indicatore Utenti Online -->
-                <div id="online-users-badge" class="hidden flex items-center bg-gray-800 px-3 py-1 rounded-full border border-gray-700 text-xs">
-                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 online-indicator"></span>
-                    <span id="online-count" class="font-bold text-white mr-1.5 text-sm">1</span>
-                    <span class="text-gray-400">Online</span>
+                <div class="flex items-center space-x-2">
+                    <!-- Bottone "I MIEI SEGRETI" -->
+                    <button onclick="window.toggleDrawer()" class="flex items-center space-x-1 bg-black px-2 py-1.5 border border-green-500/50 hover:bg-green-900/30 transition text-green-500 shadow-[0_0_10px_rgba(74,222,128,0.2)] rounded-md cursor-pointer">
+                        <span class="text-[9px] font-mono font-bold tracking-widest">[ DOSSIER ]</span>
+                    </button>
+                    
+                    <!-- Indicatore Utenti Online -->
+                    <div id="online-users-badge" class="hidden flex items-center bg-gray-800 px-2 py-1 rounded-full border border-gray-700 text-xs">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5 online-indicator"></span>
+                        <span id="online-count" class="font-bold text-white text-xs">1</span>
+                    </div>
                 </div>
             </div>
             
@@ -212,10 +229,7 @@
             <div id="send-block" class="p-3 rounded-xl shadow-inner bg-gray-800 border border-gray-700">
                 <textarea id="message-input" class="w-full p-3 mb-2 bg-gray-900 text-white rounded-lg border border-gray-600 focus:ring-green-500 focus:border-green-500 resize-none text-sm" rows="2" placeholder="Attendere acquisizione posizione..." disabled></textarea>
                 
-                <!-- Griglia Controlli a 3 colonne -->
                 <div class="grid grid-cols-3 gap-2 mb-2">
-                    
-                    <!-- 1. Controlli Raggio (Sinistra) - Modificato default 50m -->
                     <div class="flex flex-col items-center p-1.5 bg-gray-700/50 rounded-lg border border-gray-600">
                         <div class="flex items-center space-x-1 mb-1">
                             <span class="text-[10px]">📍</span>
@@ -227,7 +241,6 @@
                         </select>
                     </div>
 
-                    <!-- 2. Controlli Ritardo - Apri tra (Centro) -->
                     <div class="flex flex-col items-center p-1.5 bg-gray-700/50 rounded-lg border border-gray-600 shadow-inner">
                         <div class="flex items-center space-x-1 mb-1">
                             <svg class="w-3 h-3 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -243,7 +256,6 @@
                         </div>
                     </div>
 
-                    <!-- 3. Controlli TTL - Durata (Destra) -->
                     <div class="flex flex-col items-center p-1.5 bg-gray-700/50 rounded-lg border border-gray-600">
                         <div class="flex items-center space-x-1 mb-1">
                             <svg class="w-3 h-3 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
@@ -257,7 +269,6 @@
                             <option value="3">3 Giorni</option>
                         </select>
                     </div>
-
                 </div>
 
                 <button id="send-button" disabled class="w-full py-2 flex items-center justify-center space-x-2 rounded-lg font-semibold transition bg-gray-600 cursor-not-allowed text-sm">
@@ -267,7 +278,7 @@
             </div>
         </div>
 
-        <!-- LISTA MESSAGGI (Layout naturale senza scroll bloccato) -->
+        <!-- LISTA MESSAGGI RADAR -->
         <div class="w-full px-4 sm:px-8 relative">
             <h2 id="bottles-header" class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2 sticky top-0 bg-gray-900 z-10 pt-4 shadow-lg">
                 Bottiglie Trovate (0)
@@ -275,12 +286,58 @@
             
             <div id="messages-list" class="space-y-4 pb-32">
                 <div class="p-5 bg-gray-800 rounded-xl text-center text-gray-400 border border-dashed border-gray-700">
-                    <svg class="w-6 h-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <svg class="w-6 h-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9z"/><path d="M2 12a10 10 0 0 1 10-10"/></svg>
                     Attendi l'acquisizione della posizione...
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- ========================================== -->
+    <!-- PANNELLO "I MIEI SEGRETI" (Drawer Bottom) -->
+    <!-- ========================================== -->
+    <div id="secrets-drawer" class="fixed inset-0 z-[70] flex flex-col justify-end drawer-hidden w-full max-w-lg mx-auto font-mono">
+        <!-- Overlay Scuro -->
+        <div class="drawer-overlay absolute inset-0 bg-black/90 backdrop-blur-sm cursor-pointer" onclick="window.toggleDrawer()"></div>
+        
+        <!-- Contenuto del Cassetto (Terminale Grezzo) -->
+        <div class="drawer-content relative bg-black w-full h-[85vh] border-t-2 border-green-500 shadow-[0_-5px_30px_rgba(74,222,128,0.2)] flex flex-col scanlines">
+            
+            <!-- Header Terminale -->
+            <div class="px-6 py-4 flex justify-between items-center border-b border-green-900/50 bg-black">
+                <h2 class="text-sm font-bold text-green-500 tracking-widest">> DOSSIER_PERSONALE</h2>
+                <button onclick="window.toggleDrawer()" class="text-green-500 hover:text-white font-bold text-lg leading-none cursor-pointer">[X]</button>
+            </div>
+
+            <!-- Contenuto Scorrevole -->
+            <div class="flex-1 overflow-y-auto p-5 pb-10 space-y-6 text-green-500">
+                
+                <!-- BOX STATISTICHE GLOBALI -->
+                <div class="border border-green-900/50 p-4 bg-green-950/10">
+                    <div class="text-[10px] text-green-600 mb-2">/// RIEPILOGO STATISTICHE ///</div>
+                    <div class="flex flex-col space-y-1 text-xs">
+                        <div class="flex justify-between">
+                            <span class="opacity-70">BOTTIGLIE LASCIATE:</span>
+                            <span id="dossier-tot-bottles" class="font-bold">00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="opacity-70">REAZIONI RICEVUTE:</span>
+                            <span id="dossier-tot-reactions" class="font-bold">00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LISTA DEI MESSAGGI PERSONALI -->
+                <div>
+                    <div class="text-[10px] text-green-600 mb-4 border-b border-green-900/50 pb-1">/// CRONOLOGIA SEGRETI ///</div>
+                    <div id="dossier-list" class="space-y-5">
+                        <div class="text-xs text-gray-500 italic animate-pulse">Ricerca nel database...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- FIREBASE -->
     <script type="module">
@@ -295,7 +352,7 @@
         };
         const USER_APP_ID = "mib-app-b93cd"; 
 
-        const PROXIMITY_RADIUS_METERS = 50; // MODIFICATO: Default 50 metri
+        const PROXIMITY_RADIUS_METERS = 50; 
         const PRESENCE_RADIUS_METERS = 500; 
         const PRESENCE_TIMEOUT_MS = 5 * 60 * 1000;
         const GPS_TIMEOUT_MS = 15000;
@@ -308,8 +365,75 @@
         let locationError = null;
         let updateInterval = null; 
 
-        // Inizializziamo il set per ricordare quali messaggi hanno il cassetto "svelato"
         window.revealedReactions = window.revealedReactions || new Set();
+
+        // --- LOGICA CASSETTO I MIEI SEGRETI ---
+        window.toggleDrawer = function() {
+            const drawer = document.getElementById('secrets-drawer');
+            if (drawer.classList.contains('drawer-hidden')) {
+                drawer.classList.remove('drawer-hidden');
+                drawer.classList.add('drawer-visible');
+            } else {
+                drawer.classList.remove('drawer-visible');
+                drawer.classList.add('drawer-hidden');
+            }
+        };
+
+        function updateDossier(allMessages) {
+            if (!userId) return;
+            const now = Date.now();
+            
+            // Prendo solo i miei messaggi, ordinati dal più recente
+            const myMessages = allMessages.filter(m => m.userId === userId).sort((a,b) => b.timestamp - a.timestamp);
+            
+            let totalReactions = 0;
+            let listHtml = '';
+            
+            myMessages.forEach(msg => {
+                const reactions = msg.reactions || { think: [], eye: [], shock: [], heart: [] };
+                const rCount = (reactions.think?.length || 0) + (reactions.eye?.length || 0) + (reactions.shock?.length || 0) + (reactions.heart?.length || 0);
+                totalReactions += rCount;
+                
+                const isEvaporated = msg.expireAt <= now;
+                const isUnlockPending = msg.unlockTimestamp > now;
+                
+                let statusHtml = '';
+                let borderClass = '';
+                
+                if (isEvaporated) {
+                    statusHtml = `<span class="text-[9px] bg-gray-700 text-black px-1 font-bold">STATO: EVAPORATO</span><span class="text-[9px] opacity-60">DATA: ${new Date(msg.timestamp).toLocaleDateString('it-IT')}</span>`;
+                    borderClass = 'border-gray-700 opacity-50 grayscale';
+                } else if (isUnlockPending) {
+                    statusHtml = `<span class="text-[9px] bg-yellow-500 text-black px-1 font-bold">STATO: IN ATTESA</span><span class="text-[9px] opacity-60">APRE TRA: ${formatTimeRemaining(msg.unlockTimestamp - now)}</span>`;
+                    borderClass = 'border-yellow-500';
+                } else {
+                    statusHtml = `<span class="text-[9px] bg-green-500 text-black px-1 font-bold">STATO: ATTIVO</span><span class="text-[9px] opacity-60">SCADE TRA: ${formatTimeRemaining(msg.expireAt - now)}</span>`;
+                    borderClass = 'border-green-500';
+                }
+                
+                listHtml += `
+                    <div class="border-l-2 ${borderClass} pl-3">
+                        <div class="flex justify-between items-start mb-1">
+                            ${statusHtml}
+                        </div>
+                        <p class="text-xs text-gray-300 mb-2 mt-1 truncate">"${msg.message}"</p>
+                        <div class="flex space-x-4 text-[10px] opacity-80 mt-2 font-mono">
+                            <span>[ REAZIONI: ${rCount} ]</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('dossier-tot-bottles').textContent = myMessages.length < 10 ? '0'+myMessages.length : myMessages.length;
+            document.getElementById('dossier-tot-reactions').textContent = totalReactions < 10 ? '0'+totalReactions : totalReactions;
+            
+            const listContainer = document.getElementById('dossier-list');
+            if (myMessages.length === 0) {
+                listContainer.innerHTML = `<div class="text-xs text-gray-500 italic">Nessuna trasmissione effettuata nel database.</div>`;
+            } else {
+                listContainer.innerHTML = listHtml;
+            }
+        }
 
         // --- LOGICA ONBOARDING E POPUP CAMALEONTE ---
         let currentStep = 1;
@@ -363,16 +487,15 @@
             document.getElementById('install-android').classList.add('hidden');
             document.getElementById('install-safari').classList.add('hidden');
             document.getElementById('install-chrome').classList.add('hidden');
-            sessionStorage.setItem('mib_popup_closed', 'true'); // Non mostrare più per questa sessione
+            sessionStorage.setItem('mib_popup_closed', 'true'); 
         };
 
         window.triggerCamaleontePopup = function() {
-            if (sessionStorage.getItem('mib_popup_closed')) return; // Già chiuso in questa sessione
+            if (sessionStorage.getItem('mib_popup_closed')) return; 
             
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isAndroid = /android/i.test(navigator.userAgent.toLowerCase());
             
-            // Verifica se è già installata (Standalone)
             const isStandaloneIOS = window.navigator.standalone === true;
             const isStandaloneAndroid = window.matchMedia('(display-mode: standalone)').matches;
             
@@ -384,7 +507,6 @@
                     document.getElementById('install-safari').classList.remove('hidden');
                 }
             } else if (isAndroid && !isStandaloneAndroid) {
-                // Mostra banner Android (solo web)
                 if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('github.io') || window.location.hostname === '') {
                     document.getElementById('install-android').classList.remove('hidden');
                 }
@@ -401,7 +523,6 @@
                 window.triggerCamaleontePopup();
             }
             
-            // Raccolta Statistiche iOS Installati
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandaloneIOS = window.navigator.standalone === true;
             if (isIOS && isStandaloneIOS) {
@@ -414,15 +535,12 @@
                 }
             }
         }
-        // --- FINE LOGICA ONBOARDING ---
 
         // --- Elementi DOM ---
         const locationMessageDiv = document.getElementById('location-message');
         const messagesList = document.getElementById('messages-list');
         const bottlesHeader = document.getElementById('bottles-header');
         const messageInput = document.getElementById('message-input');
-        const onlineUsersBadge = document.getElementById('online-users-badge');
-        const onlineCountSpan = document.getElementById('online-count');
 
         const getIcon = (type) => {
              const icons = {
@@ -452,13 +570,12 @@
             const s = totalSec % 60;
             if (d > 0) return `${d}g ${h}h`;
             if (h > 0) return `${h}h ${m}m`;
-            if (m > 0) return `${m}m ${s}s`;
+            if (m > 0) return `${m}m`; // Tolti i secondi per il cassetto
             return `${s}s`;
         };
         
         function updateUIState() {
             const canSend = db && location && messageInput.value.trim() !== '' && !isLocating && userId;
-            
             const btn = document.getElementById('send-button');
             btn.disabled = !canSend;
             
@@ -494,7 +611,6 @@
                 if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
                     helpText = "Su iPhone: Vai in Impostazioni > Privacy > Localizzazione > Safari (o Chrome). Scegli 'Mentre usi l'app'. Poi clicca Ricarica.";
                 }
-
                 html = `<div class="p-3 bg-red-600/20 text-red-300 rounded-lg flex flex-col items-start space-y-2">
                             <div class="flex items-center space-x-2">${getIcon('x-circle')} <span class="font-semibold">Errore GPS</span></div>
                             <p class="text-sm pl-7 leading-snug">${locationError}</p>
@@ -519,7 +635,7 @@
                 await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), {
                     latitude: location.lat, longitude: location.lng, timestamp: serverTimestamp()
                 }, { merge: true });
-            } catch (e) { console.error("Err Presenza", e); }
+            } catch (e) { }
         }
 
         function setupPresenceListener() {
@@ -560,13 +676,9 @@
                 },
                 (err) => {
                     let msg = `Errore GPS (Codice ${err.code}).`;
-                    if (err.code === 1) {
-                         msg = "Permesso negato. Vai nelle Impostazioni e attiva la posizione, poi clicca Ricarica.";
-                    } else if (err.code === 2) {
-                         msg = "Segnale debole. Spostati all'aperto o attiva il Wi-Fi.";
-                    } else if (err.code === 3) {
-                         msg = "Tempo scaduto. Riprova.";
-                    }
+                    if (err.code === 1) msg = "Permesso negato. Vai nelle Impostazioni e attiva la posizione, poi clicca Ricarica.";
+                    else if (err.code === 2) msg = "Segnale debole. Spostati all'aperto o attiva il Wi-Fi.";
+                    else if (err.code === 3) msg = "Tempo scaduto. Riprova.";
                     locationError = msg;
                     isLocating = false;
                     displayLocationMessage();
@@ -602,33 +714,26 @@
         const calculateTTL = () => {
              const daysValue = document.getElementById('ttl-days').value;
              let days = parseFloat(daysValue);
-             if (!daysValue || isNaN(days)) {
-                 days = DEFAULT_TTL_DAYS; 
-             }
+             if (!daysValue || isNaN(days)) days = DEFAULT_TTL_DAYS; 
              return new Date(Date.now() + (days * 86400000));
         };
 
         const getAgeStyle = (timestamp, isNewest) => {
             const now = new Date();
             const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            
             const msgDate = new Date(timestamp);
             const msgDayStart = new Date(msgDate.getFullYear(), msgDate.getMonth(), msgDate.getDate()).getTime();
-            
             const daysDiff = Math.round((todayStart - msgDayStart) / (1000 * 60 * 60 * 24));
 
             if (isNewest) {
-                if (daysDiff === 0) {
-                    return { classes: 'border-green-400 border-2 message-glow bg-gray-800 text-white font-medium', opacity: '1' };
-                } else {
-                    return { classes: 'border-green-500/80 border bg-gray-800 text-gray-100 font-medium', opacity: '1' };
-                }
+                if (daysDiff === 0) return { classes: 'border-green-400 border-2 message-glow bg-gray-800 text-white font-medium', opacity: '1' };
+                else return { classes: 'border-green-500/80 border bg-gray-800 text-gray-100 font-medium', opacity: '1' };
             }
 
-            if (daysDiff === 0) { return { classes: 'border-green-400 border-2 message-glow bg-gray-800 text-white font-medium', opacity: '1' }; }
-            if (daysDiff === 1) { return { classes: 'border-gray-600 border bg-gray-800/90 text-gray-200', opacity: '0.90' }; }
-            if (daysDiff === 2) { return { classes: 'border-gray-700 border bg-gray-800/70 text-gray-300', opacity: '0.80' }; }
-            if (daysDiff > 2 && daysDiff < 5) { return { classes: 'border-gray-800 border bg-gray-800/50 text-gray-400', opacity: '0.65' }; }
+            if (daysDiff === 0) return { classes: 'border-green-400 border-2 message-glow bg-gray-800 text-white font-medium', opacity: '1' };
+            if (daysDiff === 1) return { classes: 'border-gray-600 border bg-gray-800/90 text-gray-200', opacity: '0.90' };
+            if (daysDiff === 2) return { classes: 'border-gray-700 border bg-gray-800/70 text-gray-300', opacity: '0.80' };
+            if (daysDiff > 2 && daysDiff < 5) return { classes: 'border-gray-800 border bg-gray-800/50 text-gray-400', opacity: '0.65' };
             
             return { classes: 'border-transparent bg-gray-800/40 text-gray-500 hover:opacity-100 transition-opacity duration-500', opacity: '0.50' };
         };
@@ -637,7 +742,6 @@
             if (!db || !location || !userId) return;
             const msgTxt = messageInput.value.trim();
             if (!msgTxt) return;
-
             const radiusValue = parseInt(document.getElementById('message-radius').value) || PROXIMITY_RADIUS_METERS;
 
             try {
@@ -656,7 +760,7 @@
                 messageInput.value = '';
                 document.getElementById('delay-value').value = 0;
                 document.getElementById('ttl-days').value = ''; 
-                document.getElementById('message-radius').value = '50'; // Torna al default 50m
+                document.getElementById('message-radius').value = '50';
                 updatePresence();
                 updateUIState();
             } catch (e) { console.error(e); }
@@ -680,14 +784,9 @@
             const docRef = doc(db, `artifacts/${USER_APP_ID}/public/data/bottles`, messageId);
 
             try {
-                if (hasReacted) {
-                    await updateDoc(docRef, { [`reactions.${type}`]: arrayRemove(userId) });
-                } else {
-                    await updateDoc(docRef, { [`reactions.${type}`]: arrayUnion(userId) });
-                }
-            } catch (e) {
-                console.error("Errore reazione", e);
-            }
+                if (hasReacted) await updateDoc(docRef, { [`reactions.${type}`]: arrayRemove(userId) });
+                else await updateDoc(docRef, { [`reactions.${type}`]: arrayUnion(userId) });
+            } catch (e) {}
         };
 
         window.reportMessage = async (messageId) => {
@@ -696,34 +795,24 @@
             if (!msg) return;
 
             const hasReported = msg.reportedBy && msg.reportedBy.includes(userId);
-            if (hasReported) {
-                alert("Hai già segnalato questo messaggio.");
-                return;
-            }
-
+            if (hasReported) { alert("Hai già segnalato questo messaggio."); return; }
             if (!confirm("⚠️ Vuoi segnalare questo messaggio per contenuti inopportuni o offensivi? \n\nSe un messaggio riceve 2 segnalazioni, verrà rimosso automaticamente.")) return;
 
             try {
                 const docRef = doc(db, `artifacts/${USER_APP_ID}/public/data/bottles`, messageId);
                 await updateDoc(docRef, { reportedBy: arrayUnion(userId) });
-            } catch (e) {
-                console.error("Errore segnalazione", e);
-            }
+            } catch (e) { }
         };
 
         async function setupLocalNotifications() {
             if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
                 const LocalNotifications = window.Capacitor.Plugins.LocalNotifications;
-                
                 try {
                     let permStatus = await LocalNotifications.checkPermissions();
-                    if (permStatus.display !== 'granted') {
-                        permStatus = await LocalNotifications.requestPermissions();
-                    }
+                    if (permStatus.display !== 'granted') permStatus = await LocalNotifications.requestPermissions();
 
                     if (permStatus.display === 'granted') {
                         await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
-
                         const msIn48Hours = 48 * 60 * 60 * 1000;
                         const scheduleDate = new Date(Date.now() + msIn48Hours); 
 
@@ -738,11 +827,8 @@
                                 }
                             ]
                         });
-                        console.log("Notifica programmata per:", scheduleDate);
                     }
-                } catch (e) {
-                    console.error("Errore notifiche locali:", e);
-                }
+                } catch (e) { }
             }
         }
 
@@ -866,7 +952,6 @@
 
                         const isRevealed = window.revealedReactions.has(msg.id);
                         const drawerClass = isRevealed ? 'max-h-20 opacity-100 mt-3 pt-2 border-gray-700/30' : 'max-h-0 opacity-0 mt-0 pt-0 border-transparent';
-
                         const getBtnStyle = (active) => active ? 'bg-gray-700/80 text-white rounded-md px-1.5 py-1 shadow-inner' : 'text-gray-500 hover:text-gray-300 px-1.5 py-1';
 
                         reactionsHtml = `
@@ -904,7 +989,6 @@
                         `${delBtn}<div class="pr-8"><p class="text-sm font-semibold text-red-400 flex items-center space-x-2">${getIcon('clock')} APERTURA TRA: <span class="text-lg font-bold text-red-300 ml-1">${formatTimeRemaining(msg.unlockTimestamp - now)}</span></p></div>`;
                     
                     const div = document.createElement('div');
-                    
                     div.className = `p-4 rounded-xl shadow-lg relative transition transform hover:scale-[1.01] ${!isUnlocked ? 'bg-red-900/40 border border-red-700' : ageStyle.classes}`;
                     div.style.opacity = !isUnlocked ? '1' : ageStyle.opacity;
                     div.innerHTML = html;
@@ -928,14 +1012,16 @@
                             }
                         };
                     }
-
                     messagesList.appendChild(div);
                 });
             }
 
             onSnapshot(q, (snapshot) => {
-                messagesList.messages = snapshot.docs.map(d => ({id: d.id, ...d.data(), timestamp: d.data().timestamp?.toDate().getTime(), expireAt: d.data().expireAt?.toDate().getTime(), unlockTimestamp: d.data().unlockTimestamp || 0}));
+                const allMsgs = snapshot.docs.map(d => ({id: d.id, ...d.data(), timestamp: d.data().timestamp?.toDate().getTime(), expireAt: d.data().expireAt?.toDate().getTime(), unlockTimestamp: d.data().unlockTimestamp || 0}));
+                messagesList.messages = allMsgs;
                 updateDisplay();
+                // Aggiorna anche il cassetto segreto con tutti i messaggi
+                window.updateDossier(allMsgs);
             });
         }
 
@@ -953,4 +1039,3 @@
     </script>
 </body>
 </html>
-
