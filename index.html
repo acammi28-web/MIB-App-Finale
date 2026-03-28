@@ -86,7 +86,7 @@
         .sonar-wave-3 { animation-delay: 3s; }
 
         /* --- STILI I MIEI SEGRETI --- */
-        .drawer-overlay { transition: opacity 0.2s ease; }
+        .drawer-overlay { transition: opacity 0.3s ease; }
         .drawer-content { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         
         .drawer-hidden { pointer-events: none; }
@@ -96,11 +96,6 @@
         .drawer-visible { pointer-events: auto; }
         .drawer-visible .drawer-overlay { opacity: 1; }
         .drawer-visible .drawer-content { transform: translateY(0); }
-        
-        .scanlines {
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
-            background-size: 100% 4px;
-        }
     </style>
 </head>
 <body class="text-white relative">
@@ -211,9 +206,10 @@
                 </h1>
                 
                 <div class="flex items-center space-x-2">
-                    <!-- Bottone "I MIEI SEGRETI" -->
-                    <button onclick="window.toggleDrawer()" class="flex items-center space-x-1 bg-black px-2 py-1.5 border border-green-500/50 hover:bg-green-900/30 transition text-green-500 shadow-[0_0_10px_rgba(74,222,128,0.2)] rounded-md cursor-pointer relative z-50">
-                        <span class="text-[9px] font-mono font-bold tracking-widest pointer-events-none">[ I MIEI SEGRETI ]</span>
+                    <!-- Bottone "I MIEI SEGRETI" Addolcito -->
+                    <button onclick="window.toggleDrawer()" class="flex items-center space-x-1.5 bg-gray-800 px-3 py-1.5 border border-gray-700 hover:bg-gray-700 transition text-gray-300 shadow-sm rounded-full cursor-pointer relative z-50">
+                        <span class="text-sm">📊</span>
+                        <span class="text-[10px] font-bold tracking-widest pointer-events-none">I MIEI SEGRETI</span>
                     </button>
                     
                     <!-- Indicatore Utenti Online -->
@@ -291,7 +287,8 @@
             
             <div id="messages-list" class="space-y-4 pb-32">
                 <div class="p-5 bg-gray-800 rounded-xl text-center text-gray-400 border border-dashed border-gray-700">
-                    <svg class="w-6 h-6 mx-auto mb-2 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9z"/><path d="M2 12a10 10 0 0 1 10-10"/></svg>
+                    <!-- FIX: Ripristinata l'icona del Map-Pin (non gira più) -->
+                    <svg class="w-6 h-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     Attendi l'acquisizione della posizione...
                 </div>
             </div>
@@ -299,44 +296,50 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- PANNELLO "I MIEI SEGRETI" (Drawer Bottom) -->
+    <!-- PANNELLO "I MIEI SEGRETI" (Drawer Bottom - Stile App Nativa) -->
     <!-- ========================================== -->
-    <div id="secrets-drawer" class="fixed inset-0 z-[70] flex flex-col justify-end drawer-hidden w-full max-w-lg mx-auto font-mono">
+    <div id="secrets-drawer" class="fixed inset-0 z-[70] flex flex-col justify-end drawer-hidden w-full max-w-lg mx-auto">
         <!-- Overlay Scuro -->
-        <div class="drawer-overlay absolute inset-0 bg-black/90 backdrop-blur-sm cursor-pointer" onclick="window.toggleDrawer()"></div>
+        <div class="drawer-overlay absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer pointer-events-auto" onclick="window.toggleDrawer()"></div>
         
-        <!-- Contenuto del Cassetto (Terminale Grezzo) -->
-        <div class="drawer-content relative bg-black w-full h-[85vh] border-t-2 border-green-500 shadow-[0_-5px_30px_rgba(74,222,128,0.2)] flex flex-col scanlines rounded-t-lg">
+        <!-- Contenuto del Cassetto (Design Coerente) -->
+        <div class="drawer-content relative bg-gray-900 w-full h-[85vh] border-t border-gray-700 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex flex-col rounded-t-3xl pointer-events-auto">
             
-            <!-- Header Terminale -->
-            <div class="px-6 py-4 flex justify-between items-center border-b border-green-900/50 bg-black relative z-10 rounded-t-lg">
-                <h2 class="text-sm font-bold text-green-500 tracking-widest">> I_MIEI_SEGRETI</h2>
-                <button onclick="window.toggleDrawer()" class="text-green-500 hover:text-white font-bold text-lg leading-none cursor-pointer">[X]</button>
+            <!-- Maniglia per trascinare (Estetica) -->
+            <div class="w-full flex justify-center pt-3 pb-1 absolute top-0 left-0 z-20">
+                <div class="w-12 h-1.5 bg-gray-600 rounded-full"></div>
+            </div>
+
+            <!-- Header Cassetto -->
+            <div class="px-6 pt-8 pb-4 flex justify-between items-center border-b border-gray-800 bg-gray-900 relative z-10 rounded-t-3xl">
+                <h2 class="text-lg font-bold text-white tracking-widest flex items-center gap-2">
+                    <span class="text-xl">📊</span> I MIEI SEGRETI
+                </h2>
+                <button onclick="window.toggleDrawer()" class="bg-gray-800 text-gray-400 hover:text-white p-2 rounded-full w-8 h-8 flex items-center justify-center border border-gray-700 transition">✕</button>
             </div>
 
             <!-- Contenuto Scorrevole -->
-            <div class="flex-1 overflow-y-auto p-5 pb-10 space-y-6 text-green-500 relative z-10">
+            <div class="flex-1 overflow-y-auto p-5 pb-10 space-y-6 text-gray-300 relative z-10">
                 
                 <!-- BOX STATISTICHE GLOBALI -->
-                <div class="border border-green-900/50 p-4 bg-green-950/10 rounded-md">
-                    <div class="text-[10px] text-green-600 mb-2">/// RIEPILOGO STATISTICHE ///</div>
-                    <div class="flex flex-col space-y-1 text-xs">
-                        <div class="flex justify-between">
-                            <span class="opacity-70">BOTTIGLIE LASCIATE:</span>
-                            <span id="dossier-tot-bottles" class="font-bold text-green-400">00</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="opacity-70">REAZIONI RICEVUTE:</span>
-                            <span id="dossier-tot-reactions" class="font-bold text-green-400">00</span>
-                        </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gray-800 border border-gray-700 p-3 rounded-xl text-center shadow-inner">
+                        <div class="text-2xl mb-1">📜</div>
+                        <div id="dossier-tot-bottles" class="text-xl font-mono font-bold text-white">00</div>
+                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mt-1 font-bold">Bottiglie</div>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-700 p-3 rounded-xl text-center shadow-inner">
+                        <div class="text-2xl mb-1">🔥</div>
+                        <div id="dossier-tot-reactions" class="text-xl font-mono font-bold text-green-400">00</div>
+                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mt-1 font-bold">Reazioni</div>
                     </div>
                 </div>
 
                 <!-- LISTA DEI MESSAGGI PERSONALI -->
                 <div>
-                    <div class="text-[10px] text-green-600 mb-4 border-b border-green-900/50 pb-1">/// CRONOLOGIA SEGRETI ///</div>
-                    <div id="dossier-list" class="space-y-3">
-                        <div class="text-xs text-gray-500 italic animate-pulse">Ricerca nel database...</div>
+                    <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Cronologia</div>
+                    <div id="dossier-list" class="space-y-4">
+                        <div class="text-xs text-gray-500 italic animate-pulse text-center p-4">Sincronizzazione database...</div>
                     </div>
                 </div>
             </div>
@@ -403,36 +406,33 @@
                 const isUnlockPending = msg.unlockTimestamp > now;
                 
                 let statusHtml = '';
-                let borderClass = '';
-                let bgClass = '';
+                let containerClass = '';
                 let textColor = '';
                 
-                // RESTYLING DEI BLOCCHI LOG (NUOVI TERMINI AGGIORNATI)
+                // RESTYLING DEI BLOCCHI LOG (Design coerente con l'app)
                 if (isEvaporated) {
-                    statusHtml = `<span class="text-[10px] text-gray-500 font-bold tracking-wider">[ DISSOLTO ]</span><span class="text-[9px] text-gray-600 ml-2">DATA: ${new Date(msg.timestamp).toLocaleDateString('it-IT')}</span>`;
-                    borderClass = 'border-gray-800 opacity-60';
-                    bgClass = 'bg-gray-900/30';
-                    textColor = 'text-gray-500';
+                    statusHtml = `<span class="text-[10px] bg-gray-700 text-gray-300 px-2 py-0.5 rounded border border-gray-600 font-bold tracking-wider">⚫ DISSOLTO</span><span class="text-[10px] text-gray-500 ml-2">DATA: ${new Date(msg.timestamp).toLocaleDateString('it-IT')}</span>`;
+                    containerClass = 'bg-gray-800/50 border border-gray-700 opacity-70';
+                    textColor = 'text-gray-400';
                 } else if (isUnlockPending) {
-                    statusHtml = `<span class="text-[10px] text-yellow-500 font-bold tracking-wider">[ SIGILLATO ]</span><span class="text-[9px] text-yellow-500/60 ml-2">APRE TRA: ${formatTimeRemaining(msg.unlockTimestamp - now)}</span>`;
-                    borderClass = 'border-yellow-500/50';
-                    bgClass = 'bg-yellow-950/10';
-                    textColor = 'text-yellow-200/70';
+                    statusHtml = `<span class="text-[10px] bg-yellow-900/50 text-yellow-400 px-2 py-0.5 rounded border border-yellow-500/30 font-bold tracking-wider">🟡 SIGILLATO</span><span class="text-[10px] text-yellow-500/60 ml-2">APRE TRA: ${formatTimeRemaining(msg.unlockTimestamp - now)}</span>`;
+                    containerClass = 'bg-gray-800 border border-yellow-500/50';
+                    textColor = 'text-gray-300';
                 } else {
-                    statusHtml = `<span class="text-[10px] text-green-400 font-bold tracking-wider">[ IN CHIARO ]</span><span class="text-[9px] text-green-500/60 ml-2">SCADE TRA: ${formatTimeRemaining(msg.expireAt - now)}</span>`;
-                    borderClass = 'border-green-500/50';
-                    bgClass = 'bg-green-950/20';
-                    textColor = 'text-green-100/80';
+                    statusHtml = `<span class="text-[10px] bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30 font-bold tracking-wider">🟢 IN CHIARO</span><span class="text-[10px] text-green-500/60 ml-2">SCADE TRA: ${formatTimeRemaining(msg.expireAt - now)}</span>`;
+                    containerClass = 'bg-gray-800 border border-green-500/50 shadow-[0_0_10px_rgba(74,222,128,0.1)]';
+                    textColor = 'text-white';
                 }
                 
                 listHtml += `
-                    <div class="border-l-2 ${borderClass} ${bgClass} p-3 mb-3 rounded-r-md">
-                        <div class="flex items-center mb-2">
-                            ${statusHtml}
+                    <div class="rounded-xl p-4 mb-4 ${containerClass}">
+                        <div class="flex items-center justify-between mb-3 border-b border-gray-700/50 pb-2">
+                            <div>${statusHtml}</div>
                         </div>
-                        <p class="text-xs ${textColor} mb-3 font-sans italic line-clamp-3">"${msg.message}"</p>
-                        <div class="flex space-x-4 text-[10px] text-green-500/70 font-mono border-t border-green-900/30 pt-2">
-                            <span>> REAZIONI_RILEVATE: <span class="text-green-400 font-bold">${rCount}</span></span>
+                        <p class="text-sm ${textColor} mb-3 font-sans italic line-clamp-3 leading-relaxed">"${msg.message}"</p>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded-lg border border-gray-700/50 mt-2">
+                            <span class="text-[10px] text-gray-400 font-bold tracking-wider">REAZIONI RILEVATE</span>
+                            <span class="text-xs font-mono font-bold ${rCount > 0 ? 'text-green-400' : 'text-gray-500'} bg-black px-2 py-0.5 rounded border border-gray-700">${rCount}</span>
                         </div>
                     </div>
                 `;
@@ -443,7 +443,7 @@
             
             const listContainer = document.getElementById('dossier-list');
             if (myMessages.length === 0) {
-                listContainer.innerHTML = `<div class="text-xs text-gray-500 italic">Nessuna trasmissione effettuata nel database.</div>`;
+                listContainer.innerHTML = `<div class="text-xs text-gray-500 italic text-center p-4">Nessuna bottiglia nel tuo archivio.</div>`;
             } else {
                 listContainer.innerHTML = listHtml;
             }
