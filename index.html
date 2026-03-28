@@ -96,6 +96,11 @@
         .drawer-visible { pointer-events: auto; }
         .drawer-visible .drawer-overlay { opacity: 1; }
         .drawer-visible .drawer-content { transform: translateY(0); }
+        
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+        }
     </style>
 </head>
 <body class="text-white relative">
@@ -206,9 +211,9 @@
                 </h1>
                 
                 <div class="flex items-center space-x-2">
-                    <!-- Bottone "I MIEI SEGRETI" Addolcito -->
+                    <!-- Bottone "I MIEI SEGRETI" con Pergamena -->
                     <button onclick="window.toggleDrawer()" class="flex items-center space-x-1.5 bg-gray-800 px-3 py-1.5 border border-gray-700 hover:bg-gray-700 transition text-gray-300 shadow-sm rounded-full cursor-pointer relative z-50">
-                        <span class="text-sm">📊</span>
+                        <span class="text-sm">📜</span>
                         <span class="text-[10px] font-bold tracking-widest pointer-events-none">I MIEI SEGRETI</span>
                     </button>
                     
@@ -287,7 +292,6 @@
             
             <div id="messages-list" class="space-y-4 pb-32">
                 <div class="p-5 bg-gray-800 rounded-xl text-center text-gray-400 border border-dashed border-gray-700">
-                    <!-- FIX: Ripristinata l'icona del Map-Pin (non gira più) -->
                     <svg class="w-6 h-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     Attendi l'acquisizione della posizione...
                 </div>
@@ -313,7 +317,7 @@
             <!-- Header Cassetto -->
             <div class="px-6 pt-8 pb-4 flex justify-between items-center border-b border-gray-800 bg-gray-900 relative z-10 rounded-t-3xl">
                 <h2 class="text-lg font-bold text-white tracking-widest flex items-center gap-2">
-                    <span class="text-xl">📊</span> I MIEI SEGRETI
+                    <span class="text-xl">📜</span> I MIEI SEGRETI
                 </h2>
                 <button onclick="window.toggleDrawer()" class="bg-gray-800 text-gray-400 hover:text-white p-2 rounded-full w-8 h-8 flex items-center justify-center border border-gray-700 transition">✕</button>
             </div>
@@ -324,7 +328,7 @@
                 <!-- BOX STATISTICHE GLOBALI -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-gray-800 border border-gray-700 p-3 rounded-xl text-center shadow-inner">
-                        <div class="text-2xl mb-1">📜</div>
+                        <div class="text-2xl mb-1">✉️</div>
                         <div id="dossier-tot-bottles" class="text-xl font-mono font-bold text-white">00</div>
                         <div class="text-[9px] text-gray-400 uppercase tracking-wider mt-1 font-bold">Bottiglie</div>
                     </div>
