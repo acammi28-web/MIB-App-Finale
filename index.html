@@ -202,7 +202,8 @@
     <div id="app" class="w-full max-w-lg mx-auto relative pb-10">
         
         <!-- PARTE SUPERIORE (Header e Inserimento) -->
-        <div class="p-4 sm:p-8 pb-2">
+        <!-- FIX: Aggiunto pt-8 per abbassare l'header sotto la Safe Area/Notch degli iPhone -->
+        <div class="p-4 pt-8 sm:p-8 sm:pt-10 pb-2">
             <!-- Header con Titolo e Bottone Segreti -->
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-bold text-center text-green-500 flex items-center tracking-widest">
@@ -292,7 +293,7 @@
             
             <div id="messages-list" class="space-y-4 pb-32">
                 <div class="p-5 bg-gray-800 rounded-xl text-center text-gray-400 border border-dashed border-gray-700">
-                    <svg class="w-6 h-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <svg class="w-6 h-6 mx-auto mb-2 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9z"/><path d="M2 12a10 10 0 0 1 10-10"/></svg>
                     Attendi l'acquisizione della posizione...
                 </div>
             </div>
@@ -897,6 +898,7 @@
                                 return; 
                             }
 
+                            // FIX: Aggiornato il testo da "anomalia" a "messaggio a X m"
                             messagesList.innerHTML = `
                                 <div id="sonar-view" class="p-6 bg-gray-900 rounded-xl text-center border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.1)] relative overflow-hidden mt-4">
                                     <div class="sonar-container">
@@ -907,7 +909,7 @@
                                     </div>
                                     <div class="relative z-10">
                                         <h3 class="text-green-400 font-bold text-lg mb-1 tracking-widest animate-pulse">SEGNALE RILEVATO</h3>
-                                        <p class="text-gray-400 text-xs mb-3 leading-relaxed px-2">Nessuna bottiglia nel tuo raggio, ma il sonar capta un'anomalia...</p>
+                                        <p class="text-gray-400 text-xs mb-3 leading-relaxed px-2">Nessuna bottiglia nel tuo raggio, ma il radar ha rilevato un messaggio a...</p>
                                         <p class="text-green-300/90 text-sm font-mono bg-green-900/40 inline-block px-3 py-1.5 rounded border border-green-500/30 shadow-inner">
                                             Distanza: ~<b id="sonar-dist-val" class="text-green-400">${Math.round(nearestDist)} m</b>
                                         </p>
