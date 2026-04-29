@@ -137,7 +137,8 @@
 
     <div id="install-android" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur flex items-center justify-center p-6 touch-none overscroll-none">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl relative">
-            <div class="text-5xl mb-4">🚀</div>
+            <!-- BACKDOOR: L'emoji è cliccabile -->
+            <div class="text-5xl mb-4 pointer-events-auto cursor-pointer select-none" onclick="window.devBypass()">🚀</div>
             <h3 class="text-xl font-bold text-white mb-2">Sblocca l'esperienza completa</h3>
             <p class="text-gray-400 text-sm mb-6">Per attivare il radar, <b class="text-green-400">devi installare M.I.B. sul tuo telefono.</b></p>
             <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="w-full py-3 bg-green-600 hover:bg-green-500 transition text-white font-bold rounded-lg flex items-center justify-center space-x-2 mb-3 pointer-events-auto">
@@ -149,7 +150,8 @@
 
     <div id="install-safari" class="hidden fixed inset-0 z-[60] bg-black/98 backdrop-blur flex flex-col justify-end p-4 pb-10 touch-none overscroll-none">
         <div class="bg-gray-800 border border-blue-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
-            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-5xl">🛑</div>
+            <!-- BACKDOOR: L'emoji è cliccabile -->
+            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-5xl pointer-events-auto cursor-pointer select-none" onclick="window.devBypass()">🛑</div>
             <h3 class="text-xl font-bold text-white mb-2 mt-4">Fermi tutti!</h3>
             <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per attivare il radar e non perdere i tuoi messaggi, <b class="text-blue-400">devi aggiungere l'App alla Home</b>.</p>
             <div class="bg-gray-900 rounded-xl p-4 text-left space-y-4 mb-4 border border-gray-700">
@@ -167,7 +169,8 @@
     <div id="install-chrome" class="hidden fixed inset-0 z-[60] bg-black/98 backdrop-blur flex flex-col justify-start p-4 pt-12 touch-none overscroll-none">
         <div class="bg-gray-800 border border-gray-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
             <div class="absolute -top-10 right-4 text-gray-400 text-4xl animate-bounce-up-right">↗️</div>
-            <div class="text-5xl mb-4 mt-2">🛑</div>
+            <!-- BACKDOOR: L'emoji è cliccabile -->
+            <div class="text-5xl mb-4 mt-2 pointer-events-auto cursor-pointer select-none" onclick="window.devBypass()">🛑</div>
             <h3 class="text-xl font-bold text-white mb-2">Fermi tutti!</h3>
             <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per attivare il radar e non perdere i tuoi messaggi, <b class="text-white">devi aggiungere l'App alla Home</b>.</p>
             <div class="bg-gray-900 rounded-xl p-4 text-left space-y-4 mb-4 border border-gray-700">
@@ -268,7 +271,7 @@
             
             <div id="messages-list" class="space-y-4 pb-32">
                 <div class="p-5 bg-gray-800 rounded-xl text-center text-gray-400 border border-dashed border-gray-700">
-                    <svg class="w-6 h-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <svg class="w-6 h-6 mx-auto mb-2 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9z"/><path d="M2 12a10 10 0 0 1 10-10"/></svg>
                     Attendi l'acquisizione della posizione...
                 </div>
             </div>
@@ -343,6 +346,19 @@
         let updateInterval = null; 
 
         window.revealedReactions = window.revealedReactions || new Set();
+
+        // --- BACKDOOR SEGRETA PER SVILUPPATORE ---
+        window.devClicks = 0;
+        window.devBypass = function() {
+            window.devClicks++;
+            if (window.devClicks >= 5) {
+                document.getElementById('install-android').classList.add('hidden');
+                document.getElementById('install-safari').classList.add('hidden');
+                document.getElementById('install-chrome').classList.add('hidden');
+                document.getElementById('onboarding-overlay').style.display = 'none';
+                alert("🔓 Accesso Sviluppatore Sbloccato! Benvenuto.");
+            }
+        };
 
         // --- LOGICA CASSETTO I MIEI SEGRETI ---
         window.toggleDrawer = function() {
@@ -868,6 +884,7 @@
                                 return; 
                             }
 
+                            // FIX: Aggiornato il testo da "anomalia" a "messaggio a X m"
                             messagesList.innerHTML = `
                                 <div id="sonar-view" class="p-6 bg-gray-900 rounded-xl text-center border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.1)] relative overflow-hidden mt-4">
                                     <div class="sonar-container">
