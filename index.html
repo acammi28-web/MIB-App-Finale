@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>M.I.B. (Message In a Bottle) - App Finale</title>
     
-    <!-- PWA e Icone per iPhone/Android/Browser -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png?v=2">
     <link rel="icon" type="image/png" href="icon.png?v=2">
@@ -15,7 +14,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#111827">
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
@@ -105,9 +103,6 @@
 </head>
 <body class="text-white relative">
 
-    <!-- ========================================== -->
-    <!-- 1. OVERLAY ONBOARDING (Tutorial) -->
-    <!-- ========================================== -->
     <div id="onboarding-overlay" class="hidden fixed inset-0 z-[60] bg-gray-900 flex-col touch-none overscroll-none">
         <div class="relative flex-1">
             <div id="step-1" class="step-panel active-step flex flex-col items-center justify-center p-8 text-center">
@@ -140,30 +135,23 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 2. POPUP INSTALLAZIONE "CAMALEONTE" -->
-    <!-- (Hard Wall: touch-none e overscroll-none bloccano scorrimenti strani) -->
-    <!-- ========================================== -->
-    <!-- CASO A: ANDROID -->
-    <div id="install-android" class="hidden fixed inset-0 z-[60] bg-black/90 backdrop-blur flex items-center justify-center p-6 touch-none overscroll-none">
+    <div id="install-android" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur flex items-center justify-center p-6 touch-none overscroll-none">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl relative">
             <div class="text-5xl mb-4">🚀</div>
             <h3 class="text-xl font-bold text-white mb-2">Sblocca l'esperienza completa</h3>
-            <p class="text-gray-400 text-sm mb-6">Il radar per scovare i segreti funziona meglio nell'app ufficiale.</p>
+            <p class="text-gray-400 text-sm mb-6">Per attivare il radar, <b class="text-green-400">devi installare M.I.B. sul tuo telefono.</b></p>
             <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="w-full py-3 bg-green-600 hover:bg-green-500 transition text-white font-bold rounded-lg flex items-center justify-center space-x-2 mb-3 pointer-events-auto">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a2.96 2.96 0 0 1-.607-1.745V3.56c0-.66.216-1.272.606-1.746zm11.75 11.62l3.435 3.435-.939.535c-1.332.766-3.05.69-4.22-.19l1.724-3.78zM14.93 11.26l-1.306-2.91 4.67-2.67c1.17-.666 2.888-.742 4.22.025l-7.584 5.555zm-1.76-3.83L3.106 1.258a3.02 3.02 0 0 1 1.76-.566c.866 0 1.67.355 2.254.922l6.05 6.015z"/></svg>
                 <span>Scarica l'App Android</span>
             </a>
-            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline mt-2 p-2 relative z-10 pointer-events-auto">Prosegui nel browser (non consigliato)</button>
         </div>
     </div>
 
-    <!-- CASO B: iOS SAFARI -->
-    <div id="install-safari" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur flex flex-col justify-end p-4 pb-8 touch-none overscroll-none">
-        <div class="bg-gray-800 border border-blue-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto pointer-events-auto">
+    <div id="install-safari" class="hidden fixed inset-0 z-[60] bg-black/98 backdrop-blur flex flex-col justify-end p-4 pb-10 touch-none overscroll-none">
+        <div class="bg-gray-800 border border-blue-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
             <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-5xl">🛑</div>
             <h3 class="text-xl font-bold text-white mb-2 mt-4">Fermi tutti!</h3>
-            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per non perdere i tuoi messaggi e far funzionare il radar, <b class="text-blue-400">devi aggiungere M.I.B. al telefono</b>.</p>
+            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per attivare il radar e non perdere i tuoi messaggi, <b class="text-blue-400">devi aggiungere l'App alla Home</b>.</p>
             <div class="bg-gray-900 rounded-xl p-4 text-left space-y-4 mb-4 border border-gray-700">
                 <div class="flex items-center text-sm text-gray-200">
                     <span class="font-bold mr-2 text-blue-400">1.</span> Tocca l'icona <span class="safari-share mx-1"></span> qui sotto.
@@ -173,17 +161,15 @@
                 </div>
             </div>
             <div class="text-blue-500 text-4xl animate-bounce-down mb-2">⬇️</div>
-            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline p-2 mt-2 relative z-10 pointer-events-auto">Continua su Safari (perderai i dati uscendo)</button>
         </div>
     </div>
 
-    <!-- CASO C: iOS CHROME -->
-    <div id="install-chrome" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur flex flex-col justify-start p-4 pt-12 touch-none overscroll-none">
-        <div class="bg-gray-800 border border-gray-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto pointer-events-auto">
+    <div id="install-chrome" class="hidden fixed inset-0 z-[60] bg-black/98 backdrop-blur flex flex-col justify-start p-4 pt-12 touch-none overscroll-none">
+        <div class="bg-gray-800 border border-gray-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
             <div class="absolute -top-10 right-4 text-gray-400 text-4xl animate-bounce-up-right">↗️</div>
             <div class="text-5xl mb-4 mt-2">🛑</div>
             <h3 class="text-xl font-bold text-white mb-2">Fermi tutti!</h3>
-            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per non perdere i tuoi messaggi e far funzionare il radar, <b class="text-white">devi aggiungere M.I.B. al telefono</b>.</p>
+            <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per attivare il radar e non perdere i tuoi messaggi, <b class="text-white">devi aggiungere l'App alla Home</b>.</p>
             <div class="bg-gray-900 rounded-xl p-4 text-left space-y-4 mb-4 border border-gray-700">
                 <div class="flex items-center text-sm text-gray-200">
                     <span class="font-bold mr-2 text-white">1.</span> Tocca l'icona Condividi in alto a destra.
@@ -192,19 +178,12 @@
                     <span class="font-bold mr-2 text-white">2.</span> Scorri e tocca <span class="add-to-home mx-1"></span> <b>Aggiungi a Home</b>.
                 </div>
             </div>
-            <button onclick="window.closePopups()" class="text-xs text-gray-500 underline p-2 mt-4 relative z-10 pointer-events-auto">Continua nel browser (perderai i dati uscendo)</button>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- CONTENITORE APP PRINCIPALE -->
-    <!-- ========================================== -->
     <div id="app" class="w-full max-w-lg mx-auto relative pb-10">
         
-        <!-- PARTE SUPERIORE (Header e Inserimento) -->
-        <!-- FIX: Aggiunto pt-8 per abbassare l'header sotto la Safe Area/Notch degli iPhone -->
-        <div class="p-4 pt-8 sm:p-8 sm:pt-10 pb-2">
-            <!-- Header con Titolo e Bottone Segreti -->
+        <div class="p-4 sm:p-8 pb-2" style="padding-top: max(1.5rem, env(safe-area-inset-top));">
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-bold text-center text-green-500 flex items-center tracking-widest">
                     <svg class="w-7 h-7 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -212,13 +191,11 @@
                 </h1>
                 
                 <div class="flex items-center space-x-2">
-                    <!-- Bottone "I MIEI SEGRETI" con Pergamena -->
                     <button onclick="window.toggleDrawer()" class="flex items-center space-x-1.5 bg-gray-800 px-3 py-1.5 border border-gray-700 hover:bg-gray-700 transition text-gray-300 shadow-sm rounded-full cursor-pointer relative z-50">
                         <span class="text-sm">📜</span>
                         <span class="text-[10px] font-bold tracking-widest pointer-events-none">I MIEI SEGRETI</span>
                     </button>
                     
-                    <!-- Indicatore Utenti Online -->
                     <div id="online-users-badge" class="hidden flex items-center bg-gray-800 px-2 py-1 rounded-full border border-gray-700 text-xs">
                         <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5 online-indicator"></span>
                         <span id="online-count" class="font-bold text-white text-xs">1</span>
@@ -232,7 +209,6 @@
 
             <div id="location-message" class="mb-4 text-xs"></div>
 
-            <!-- Blocco Invia Messaggio -->
             <div id="send-block" class="p-3 rounded-xl shadow-inner bg-gray-800 border border-gray-700">
                 <textarea id="message-input" class="w-full p-3 mb-2 bg-gray-900 text-white rounded-lg border border-gray-600 focus:ring-green-500 focus:border-green-500 resize-none text-sm" rows="2" placeholder="Attendere acquisizione posizione..." disabled></textarea>
                 
@@ -285,7 +261,6 @@
             </div>
         </div>
 
-        <!-- LISTA MESSAGGI RADAR -->
         <div class="w-full px-4 sm:px-8 relative z-10">
             <h2 id="bottles-header" class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2 sticky top-0 bg-gray-900 z-10 pt-4 shadow-lg">
                 Bottiglie Trovate (0)
@@ -300,22 +275,15 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- PANNELLO "I MIEI SEGRETI" (Drawer Bottom - Stile App Nativa) -->
-    <!-- ========================================== -->
     <div id="secrets-drawer" class="fixed inset-0 z-[70] flex flex-col justify-end drawer-hidden w-full max-w-lg mx-auto">
-        <!-- Overlay Scuro -->
         <div class="drawer-overlay absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="window.toggleDrawer()"></div>
         
-        <!-- Contenuto del Cassetto (Design Coerente) -->
         <div class="drawer-content relative bg-gray-900 w-full h-[85vh] border-t border-gray-700 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex flex-col rounded-t-3xl">
             
-            <!-- Maniglia per trascinare (Estetica) -->
             <div class="w-full flex justify-center pt-3 pb-1 absolute top-0 left-0 z-20">
                 <div class="w-12 h-1.5 bg-gray-600 rounded-full"></div>
             </div>
 
-            <!-- Header Cassetto -->
             <div class="px-6 pt-8 pb-4 flex justify-between items-center border-b border-gray-800 bg-gray-900 relative z-10 rounded-t-3xl">
                 <h2 class="text-lg font-bold text-white tracking-widest flex items-center gap-2">
                     <span class="text-xl">📜</span> I MIEI SEGRETI
@@ -323,10 +291,8 @@
                 <button onclick="window.toggleDrawer()" class="bg-gray-800 text-gray-400 hover:text-white p-2 rounded-full w-8 h-8 flex items-center justify-center border border-gray-700 transition">✕</button>
             </div>
 
-            <!-- Contenuto Scorrevole -->
             <div class="flex-1 overflow-y-auto p-5 pb-10 space-y-6 text-gray-300 relative z-10">
                 
-                <!-- BOX STATISTICHE GLOBALI -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-gray-800 border border-gray-700 p-3 rounded-xl text-center shadow-inner">
                         <div class="text-2xl mb-1">✉️</div>
@@ -340,7 +306,6 @@
                     </div>
                 </div>
 
-                <!-- LISTA DEI MESSAGGI PERSONALI -->
                 <div>
                     <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Cronologia</div>
                     <div id="dossier-list" class="space-y-4">
@@ -352,7 +317,6 @@
     </div>
 
 
-    <!-- FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -414,7 +378,6 @@
                 let containerClass = '';
                 let textColor = '';
                 
-                // RESTYLING DEI BLOCCHI LOG (Design coerente con l'app)
                 if (isEvaporated) {
                     statusHtml = `<span class="text-[10px] bg-gray-700 text-gray-300 px-2 py-0.5 rounded border border-gray-600 font-bold tracking-wider">⚫ DISSOLTO</span><span class="text-[10px] text-gray-500 ml-2">DATA: ${new Date(msg.timestamp).toLocaleDateString('it-IT')}</span>`;
                     containerClass = 'bg-gray-800/50 border border-gray-700 opacity-70';
@@ -503,22 +466,17 @@
             window.triggerCamaleontePopup();
         };
 
-        window.closePopups = function() {
-            document.getElementById('install-android').classList.add('hidden');
-            document.getElementById('install-safari').classList.add('hidden');
-            document.getElementById('install-chrome').classList.add('hidden');
-            sessionStorage.setItem('mib_popup_closed', 'true'); 
-        };
+        // Rimosso window.closePopups: IL MURO E' INVALICABILE
 
         window.triggerCamaleontePopup = function() {
-            if (sessionStorage.getItem('mib_popup_closed')) return; 
-            
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isAndroid = /android/i.test(navigator.userAgent.toLowerCase());
             
             const isStandaloneIOS = window.navigator.standalone === true;
             const isStandaloneAndroid = window.matchMedia('(display-mode: standalone)').matches;
             
+            // SE IL TELEFONO E' STANDALONE (INSTALLATA) NON MOSTRA NULLA E FUNZIONA.
+            // ALTRIMENTI MOSTRA IL MURO.
             if (isIOS && !isStandaloneIOS) {
                 const isChrome = navigator.userAgent.includes("CriOS");
                 if (isChrome) {
@@ -535,24 +493,36 @@
 
         function handleStartupUX() {
             const onboardingDone = localStorage.getItem('mib_onboarding_done');
+            
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandaloneIOS = window.navigator.standalone === true;
+            const isStandaloneAndroid = window.matchMedia('(display-mode: standalone)').matches;
+            
+            // SE l'app viene aperta direttamente dalla Home (Standalone), SALTA IL TUTORIAL a prescindere.
+            if (isStandaloneIOS || isStandaloneAndroid) {
+                document.getElementById('onboarding-overlay').style.display = 'none';
+                localStorage.setItem('mib_onboarding_done', 'true');
+                
+                // Statistica di iOS install
+                if (isIOS && isStandaloneIOS) {
+                    const hasCounted = localStorage.getItem('ios_install_counted_v2');
+                    if (!hasCounted && db) {
+                        const statsRef = doc(db, `artifacts/${USER_APP_ID}/public/data/stats`, 'ios_installs');
+                        setDoc(statsRef, { count: increment(1) }, { merge: true })
+                            .then(() => { localStorage.setItem('ios_install_counted_v2', 'true'); })
+                            .catch((e) => {});
+                    }
+                }
+                return;
+            }
+
+            // Altrimenti, logica normale (Tutorial -> Muro)
             if (!onboardingDone) {
                 document.getElementById('onboarding-overlay').classList.remove('hidden');
                 document.getElementById('onboarding-overlay').style.display = 'flex';
             } else {
                 document.getElementById('onboarding-overlay').style.display = 'none';
                 window.triggerCamaleontePopup();
-            }
-            
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isStandaloneIOS = window.navigator.standalone === true;
-            if (isIOS && isStandaloneIOS) {
-                const hasCounted = localStorage.getItem('ios_install_counted_v2');
-                if (!hasCounted && db) {
-                    const statsRef = doc(db, `artifacts/${USER_APP_ID}/public/data/stats`, 'ios_installs');
-                    setDoc(statsRef, { count: increment(1) }, { merge: true })
-                        .then(() => { localStorage.setItem('ios_install_counted_v2', 'true'); })
-                        .catch((e) => {});
-                }
             }
         }
 
@@ -898,7 +868,6 @@
                                 return; 
                             }
 
-                            // FIX: Aggiornato il testo da "anomalia" a "messaggio a X m"
                             messagesList.innerHTML = `
                                 <div id="sonar-view" class="p-6 bg-gray-900 rounded-xl text-center border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.1)] relative overflow-hidden mt-4">
                                     <div class="sonar-container">
