@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>M.I.B. (Message In a Bottle) - App Finale</title>
     
+    <!-- PWA e Icone per iPhone/Android/Browser -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png?v=2">
     <link rel="icon" type="image/png" href="icon.png?v=2">
@@ -14,6 +15,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#111827">
 
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
@@ -103,6 +105,9 @@
 </head>
 <body class="text-white relative">
 
+    <!-- ========================================== -->
+    <!-- 1. OVERLAY ONBOARDING (Tutorial) -->
+    <!-- ========================================== -->
     <div id="onboarding-overlay" class="hidden fixed inset-0 z-[60] bg-gray-900 flex-col touch-none overscroll-none">
         <div class="relative flex-1">
             <div id="step-1" class="step-panel active-step flex flex-col items-center justify-center p-8 text-center">
@@ -135,10 +140,13 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- 2. POPUP INSTALLAZIONE "CAMALEONTE" (HARD WALL PROD) -->
+    <!-- ========================================== -->
+    <!-- CASO A: ANDROID -->
     <div id="install-android" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur flex items-center justify-center p-6 touch-none overscroll-none">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl relative">
-            <!-- BACKDOOR: L'emoji è cliccabile -->
-            <div class="text-5xl mb-4 pointer-events-auto cursor-pointer select-none" onclick="window.devBypass()">🚀</div>
+            <div class="text-5xl mb-4">🚀</div>
             <h3 class="text-xl font-bold text-white mb-2">Sblocca l'esperienza completa</h3>
             <p class="text-gray-400 text-sm mb-6">Per attivare il radar, <b class="text-green-400">devi installare M.I.B. sul tuo telefono.</b></p>
             <a href="https://play.google.com/store/apps/details?id=com.mib.localsecrets" target="_blank" class="w-full py-3 bg-green-600 hover:bg-green-500 transition text-white font-bold rounded-lg flex items-center justify-center space-x-2 mb-3 pointer-events-auto">
@@ -148,10 +156,10 @@
         </div>
     </div>
 
+    <!-- CASO B: iOS SAFARI -->
     <div id="install-safari" class="hidden fixed inset-0 z-[60] bg-black/98 backdrop-blur flex flex-col justify-end p-4 pb-10 touch-none overscroll-none">
         <div class="bg-gray-800 border border-blue-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
-            <!-- BACKDOOR: L'emoji è cliccabile -->
-            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-5xl pointer-events-auto cursor-pointer select-none" onclick="window.devBypass()">🛑</div>
+            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-5xl">🛑</div>
             <h3 class="text-xl font-bold text-white mb-2 mt-4">Fermi tutti!</h3>
             <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per attivare il radar e non perdere i tuoi messaggi, <b class="text-blue-400">devi aggiungere l'App alla Home</b>.</p>
             <div class="bg-gray-900 rounded-xl p-4 text-left space-y-4 mb-4 border border-gray-700">
@@ -166,11 +174,11 @@
         </div>
     </div>
 
+    <!-- CASO C: iOS CHROME -->
     <div id="install-chrome" class="hidden fixed inset-0 z-[60] bg-black/98 backdrop-blur flex flex-col justify-start p-4 pt-12 touch-none overscroll-none">
         <div class="bg-gray-800 border border-gray-500/50 rounded-2xl p-6 w-full text-center shadow-2xl relative max-w-md mx-auto">
             <div class="absolute -top-10 right-4 text-gray-400 text-4xl animate-bounce-up-right">↗️</div>
-            <!-- BACKDOOR: L'emoji è cliccabile -->
-            <div class="text-5xl mb-4 mt-2 pointer-events-auto cursor-pointer select-none" onclick="window.devBypass()">🛑</div>
+            <div class="text-5xl mb-4 mt-2">🛑</div>
             <h3 class="text-xl font-bold text-white mb-2">Fermi tutti!</h3>
             <p class="text-gray-300 text-sm mb-6 leading-relaxed">Per attivare il radar e non perdere i tuoi messaggi, <b class="text-white">devi aggiungere l'App alla Home</b>.</p>
             <div class="bg-gray-900 rounded-xl p-4 text-left space-y-4 mb-4 border border-gray-700">
@@ -184,8 +192,12 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- CONTENITORE APP PRINCIPALE -->
+    <!-- ========================================== -->
     <div id="app" class="w-full max-w-lg mx-auto relative pb-10">
         
+        <!-- PARTE SUPERIORE (Header e Inserimento) -->
         <div class="p-4 sm:p-8 pb-2" style="padding-top: max(1.5rem, env(safe-area-inset-top));">
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-bold text-center text-green-500 flex items-center tracking-widest">
@@ -212,6 +224,7 @@
 
             <div id="location-message" class="mb-4 text-xs"></div>
 
+            <!-- Blocco Invia Messaggio -->
             <div id="send-block" class="p-3 rounded-xl shadow-inner bg-gray-800 border border-gray-700">
                 <textarea id="message-input" class="w-full p-3 mb-2 bg-gray-900 text-white rounded-lg border border-gray-600 focus:ring-green-500 focus:border-green-500 resize-none text-sm" rows="2" placeholder="Attendere acquisizione posizione..." disabled></textarea>
                 
@@ -264,6 +277,7 @@
             </div>
         </div>
 
+        <!-- LISTA MESSAGGI RADAR -->
         <div class="w-full px-4 sm:px-8 relative z-10">
             <h2 id="bottles-header" class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2 sticky top-0 bg-gray-900 z-10 pt-4 shadow-lg">
                 Bottiglie Trovate (0)
@@ -278,9 +292,14 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- PANNELLO "I MIEI SEGRETI" -->
+    <!-- ========================================== -->
     <div id="secrets-drawer" class="fixed inset-0 z-[70] flex flex-col justify-end drawer-hidden w-full max-w-lg mx-auto">
+        <!-- Overlay Scuro -->
         <div class="drawer-overlay absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="window.toggleDrawer()"></div>
         
+        <!-- Contenuto del Cassetto -->
         <div class="drawer-content relative bg-gray-900 w-full h-[85vh] border-t border-gray-700 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex flex-col rounded-t-3xl">
             
             <div class="w-full flex justify-center pt-3 pb-1 absolute top-0 left-0 z-20">
@@ -296,6 +315,7 @@
 
             <div class="flex-1 overflow-y-auto p-5 pb-10 space-y-6 text-gray-300 relative z-10">
                 
+                <!-- BOX STATISTICHE GLOBALI -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-gray-800 border border-gray-700 p-3 rounded-xl text-center shadow-inner">
                         <div class="text-2xl mb-1">✉️</div>
@@ -309,6 +329,7 @@
                     </div>
                 </div>
 
+                <!-- LISTA DEI MESSAGGI PERSONALI -->
                 <div>
                     <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Cronologia</div>
                     <div id="dossier-list" class="space-y-4">
@@ -319,7 +340,7 @@
         </div>
     </div>
 
-
+    <!-- FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -346,19 +367,6 @@
         let updateInterval = null; 
 
         window.revealedReactions = window.revealedReactions || new Set();
-
-        // --- BACKDOOR SEGRETA PER SVILUPPATORE ---
-        window.devClicks = 0;
-        window.devBypass = function() {
-            window.devClicks++;
-            if (window.devClicks >= 5) {
-                document.getElementById('install-android').classList.add('hidden');
-                document.getElementById('install-safari').classList.add('hidden');
-                document.getElementById('install-chrome').classList.add('hidden');
-                document.getElementById('onboarding-overlay').style.display = 'none';
-                alert("🔓 Accesso Sviluppatore Sbloccato! Benvenuto.");
-            }
-        };
 
         // --- LOGICA CASSETTO I MIEI SEGRETI ---
         window.toggleDrawer = function() {
@@ -482,8 +490,6 @@
             window.triggerCamaleontePopup();
         };
 
-        // Rimosso window.closePopups: IL MURO E' INVALICABILE
-
         window.triggerCamaleontePopup = function() {
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isAndroid = /android/i.test(navigator.userAgent.toLowerCase());
@@ -491,8 +497,6 @@
             const isStandaloneIOS = window.navigator.standalone === true;
             const isStandaloneAndroid = window.matchMedia('(display-mode: standalone)').matches;
             
-            // SE IL TELEFONO E' STANDALONE (INSTALLATA) NON MOSTRA NULLA E FUNZIONA.
-            // ALTRIMENTI MOSTRA IL MURO.
             if (isIOS && !isStandaloneIOS) {
                 const isChrome = navigator.userAgent.includes("CriOS");
                 if (isChrome) {
@@ -884,7 +888,6 @@
                                 return; 
                             }
 
-                            // FIX: Aggiornato il testo da "anomalia" a "messaggio a X m"
                             messagesList.innerHTML = `
                                 <div id="sonar-view" class="p-6 bg-gray-900 rounded-xl text-center border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.1)] relative overflow-hidden mt-4">
                                     <div class="sonar-container">
