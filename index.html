@@ -356,11 +356,17 @@
         // --- NUOVI IMPORT PER LE NOTIFICHE FCM ---
         import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-messaging.js";
         
+        // CONFIGURAZIONE COMPLETA E AGGIORNATA
         const USER_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyBOFHJgBCfVN3hT9EHvI9hSaqH7LxL1UYw", 
+            apiKey: "AIzaSyBOFHJgBCfVN3hT9EHvI9hSaqH7LxL1UYw",
             authDomain: "mib-app-b93cd.firebaseapp.com",
             projectId: "mib-app-b93cd",
+            storageBucket: "mib-app-b93cd.firebasestorage.app",
+            messagingSenderId: "963337434086",
+            appId: "1:963337434086:web:c1fa47b8e6a8eddf0f5c27",
+            measurementId: "G-B17DNCHE1M"
         };
+        
         const USER_APP_ID = "mib-app-b93cd"; 
 
         const PROXIMITY_RADIUS_METERS = 50; 
@@ -378,7 +384,7 @@
         
         // Variabile per il servizio messaggistica
         let messaging = null;
-        // CHIAVE VAPID INSERITA CORRETTAMENTE
+        // CHIAVE VAPID
         const VAPID_KEY = "BNBjATeTx0e1h7SBsbftohUcfweKGqeQB3E_UmkiU6ZlFi_wBxVqSZueFJP2SEf0ttMe9d7OG-0gTwJxeIKMOwA"; 
 
         window.revealedReactions = window.revealedReactions || new Set();
