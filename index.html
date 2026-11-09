@@ -400,11 +400,20 @@
                     if (permission === 'granted') {
                         console.log("Permesso concesso! Recupero il token...");
                         
-                        getToken(messaging, { vapidKey: VAPID_KEY }).then((currentToken) => {
-                            if (currentToken) {
-                                console.log("ECCO IL TUO TOKEN FCM:", currentToken);
-                                alert("Notifiche attivate con successo! Guarda la console per il token.");
-                            } else {
+                        getToken(messaging, { vapidKey: VAPID_KEY }).then(async (currentToken) => {
+    if (currentToken) {
+        console.log("ECCO IL TUO TOKEN FCM:", currentToken);
+        
+        // Salva il token in memoria e lo invia al database
+        localStorage.setItem('mib_fcm_token', currentToken);
+        if (db && userId) {
+            await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), {
+                fcmToken: currentToken
+            }, { merge: true });
+        }
+        
+        alert("Notifiche radar attivate con successo sul tuo dispositivo!");
+    } else {
                                 console.log("Nessun token disponibile. Assicurati che il file firebase-messaging-sw.js esista.");
                                 alert("Impossibile recuperare il token.");
                             }
@@ -693,14 +702,20 @@
         }
 
         async function updatePresence() {
-            if (!db || !userId || !location) return;
-            try {
-                await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), {
-                    latitude: location.lat, longitude: location.lng, timestamp: serverTimestamp()
-                }, { merge: true });
-            } catch (e) { }
+    if (!db || !userId || !location) return;
+    try {
+        const payload = {
+            latitude: location.lat, 
+            longitude: location.lng, 
+            timestamp: serverTimestamp()
+        };
+        const savedToken = localStorage.getItem('mib_fcm_token');
+        if (savedToken) {
+            payload.fcmToken = savedToken;
         }
-
+        await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), payload, { merge: true });
+    } catch (e) { }
+}
         function setupPresenceListener() {
             if (!db || !userId) return;
             onSnapshot(query(collection(db, `artifacts/${USER_APP_ID}/public/data/presence`)), (snapshot) => {
