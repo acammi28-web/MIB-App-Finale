@@ -206,9 +206,16 @@
                 </h1>
                 
                 <div class="flex items-center space-x-2">
+                    <!-- NUOVO BOTTONE NOTIFICHE -->
+                    <button id="btnNotifiche" class="flex items-center space-x-1 bg-gray-800 px-3 py-1.5 border border-gray-700 hover:bg-gray-700 transition text-gray-300 shadow-sm rounded-full cursor-pointer relative z-50">
+                        <span class="text-sm">🔔</span>
+                        <span class="text-[10px] font-bold tracking-widest pointer-events-none">NOTIFICHE</span>
+                    </button>
+                    <!-- FINE NUOVO BOTTONE NOTIFICHE -->
+
                     <button onclick="window.toggleDrawer()" class="flex items-center space-x-1.5 bg-gray-800 px-3 py-1.5 border border-gray-700 hover:bg-gray-700 transition text-gray-300 shadow-sm rounded-full cursor-pointer relative z-50">
                         <span class="text-sm">📜</span>
-                        <span class="text-[10px] font-bold tracking-widest pointer-events-none">I MIEI SEGRETI</span>
+                        <span class="text-[10px] font-bold tracking-widest pointer-events-none">SEGRETI</span>
                     </button>
                     
                     <div id="online-users-badge" class="hidden flex items-center bg-gray-800 px-2 py-1 rounded-full border border-gray-700 text-xs">
@@ -346,6 +353,9 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, setDoc, increment, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
+        // --- NUOVI IMPORT PER LE NOTIFICHE FCM ---
+        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-messaging.js";
+        
         const USER_FIREBASE_CONFIG = {
             apiKey: "AIzaSyBOFHJgBCfVN3hT9EHvI9hSaqH7LxL1UYw", 
             authDomain: "mib-app-b93cd.firebaseapp.com",
@@ -365,8 +375,45 @@
         let isLocating = false;
         let locationError = null;
         let updateInterval = null; 
+        
+        // Variabile per il servizio messaggistica
+        let messaging = null;
+        // CHIAVE VAPID INSERITA CORRETTAMENTE
+        const VAPID_KEY = "BNBjATeTx0e1h7SBsbftohUcfweKGqeQB3E_UmkiU6ZlFi_wBxVqSZueFJP2SEf0ttMe9d7OG-0gTwJxeIKMOwA"; 
 
         window.revealedReactions = window.revealedReactions || new Set();
+
+        // --- LOGICA NOTIFICHE FCM ---
+        function setupFCMNotifications() {
+            if (!messaging) return;
+            
+            document.getElementById('btnNotifiche').addEventListener('click', () => {
+                console.log("Richiesta permesso FCM in corso...");
+                
+                Notification.requestPermission().then((permission) => {
+                    if (permission === 'granted') {
+                        console.log("Permesso concesso! Recupero il token...");
+                        
+                        getToken(messaging, { vapidKey: VAPID_KEY }).then((currentToken) => {
+                            if (currentToken) {
+                                console.log("ECCO IL TUO TOKEN FCM:", currentToken);
+                                alert("Notifiche attivate con successo! Guarda la console per il token.");
+                            } else {
+                                console.log("Nessun token disponibile. Assicurati che il file firebase-messaging-sw.js esista.");
+                                alert("Impossibile recuperare il token.");
+                            }
+                        }).catch((err) => {
+                            console.log("Errore durante il recupero del token:", err);
+                            alert("Errore FCM: Controlla la console.");
+                        });
+                        
+                    } else {
+                        console.log("L'utente ha negato il permesso.");
+                        alert("Hai bloccato le notifiche nel browser.");
+                    }
+                });
+            });
+        }
 
         // --- LOGICA CASSETTO I MIEI SEGRETI ---
         window.toggleDrawer = function() {
@@ -701,6 +748,15 @@
             try {
                 const app = initializeApp(USER_FIREBASE_CONFIG);
                 db = getFirestore(app);
+                
+                // INIZIALIZZA IL SERVIZIO MESSAGGISTICA
+                try {
+                    messaging = getMessaging(app);
+                    setupFCMNotifications();
+                } catch (err) {
+                    console.log("Servizio FCM non supportato su questo browser.", err);
+                }
+
                 const auth = getAuth(app);
                 onAuthStateChanged(auth, (user) => {
                     if (user) { userId = user.uid; window.fetchLocation(); handleStartupUX(); }
