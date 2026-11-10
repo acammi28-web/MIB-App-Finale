@@ -393,41 +393,43 @@
         function setupFCMNotifications() {
             if (!messaging) return;
             
-            document.getElementById('btnNotifiche').addEventListener('click', () => {
-                console.log("Richiesta permesso FCM in corso...");
-                
+            // Funzione di servizio per richiedere/ottenere il token e salvarlo
+            const enableNotifications = () => {
+                console.log("Avvio procedura FCM...");
                 Notification.requestPermission().then((permission) => {
                     if (permission === 'granted') {
                         console.log("Permesso concesso! Recupero il token...");
-                        
                         getToken(messaging, { vapidKey: VAPID_KEY }).then(async (currentToken) => {
-    if (currentToken) {
-        console.log("ECCO IL TUO TOKEN FCM:", currentToken);
-        
-        // Salva il token in memoria e lo invia al database
-        localStorage.setItem('mib_fcm_token', currentToken);
-        if (db && userId) {
-            await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), {
-                fcmToken: currentToken
-            }, { merge: true });
-        }
-        
-        alert("Notifiche radar attivate con successo sul tuo dispositivo!");
-    } else {
+                            if (currentToken) {
+                                console.log("ECCO IL TUO TOKEN FCM:", currentToken);
+                                localStorage.setItem('mib_fcm_token', currentToken);
+                                if (db && userId) {
+                                    await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), {
+                                        fcmToken: currentToken
+                                    }, { merge: true });
+                                }
+                            } else {
                                 console.log("Nessun token disponibile. Assicurati che il file firebase-messaging-sw.js esista.");
-                                alert("Impossibile recuperare il token.");
                             }
                         }).catch((err) => {
                             console.log("Errore durante il recupero del token:", err);
-                            alert("Errore FCM: Controlla la console.");
                         });
-                        
                     } else {
                         console.log("L'utente ha negato il permesso.");
-                        alert("Hai bloccato le notifiche nel browser.");
                     }
                 });
+            };
+
+            // 1. Collega il click manuale del bottone
+            document.getElementById('btnNotifiche').addEventListener('click', () => {
+                enableNotifications();
+                alert("Notifiche radar in attivazione. Il token verrà generato a breve.");
             });
+
+            // 2. Se il permesso è già stato dato in passato, avvia in automatico (silenzioso)
+            if (Notification.permission === 'granted') {
+                enableNotifications();
+            }
         }
 
         // --- LOGICA CASSETTO I MIEI SEGRETI ---
