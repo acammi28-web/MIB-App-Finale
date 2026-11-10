@@ -11,10 +11,12 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-    const notificationTitle = "Radar M.I.B.";
+    console.log("Notifica ricevuta in background!", payload);
+
+    const notificationTitle = payload.notification?.title || "Radar M.I.B.";
     const notificationOptions = {
-        body: "Qualcuno ha appena lasciato un segnale nei paraggi!",
-        icon: "https://cdn-icons-png.flaticon.com/512/3233/3233483.png",
+        body: payload.notification?.body || "Qualcuno ha appena lasciato un segnale nei paraggi!",
+        icon: "/icon.png", // <--- ICONA LOCALE: Evita l'errore su Android
         vibrate: [300, 100, 400],
         requireInteraction: true
     };
