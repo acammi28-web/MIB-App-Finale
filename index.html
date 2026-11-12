@@ -389,46 +389,87 @@
 
         window.revealedReactions = window.revealedReactions || new Set();
 
-        // --- LOGICA NOTIFICHE FCM ---
-        function setupFCMNotifications() {
-            if (!messaging) return;
-            
-            // Funzione di servizio per richiedere/ottenere il token e salvarlo
-            const enableNotifications = () => {
-                console.log("Avvio procedura FCM...");
-                Notification.requestPermission().then((permission) => {
-                    if (permission === 'granted') {
-                        console.log("Permesso concesso! Recupero il token...");
-                        getToken(messaging, { vapidKey: VAPID_KEY }).then(async (currentToken) => {
-                            if (currentToken) {
-                                console.log("ECCO IL TUO TOKEN FCM:", currentToken);
-                                localStorage.setItem('mib_fcm_token', currentToken);
-                                if (db && userId) {
-                                    await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), {
-                                        fcmToken: currentToken
-                                    }, { merge: true });
-                                }
-                            } else {
-                                console.log("Nessun token disponibile. Assicurati che il file firebase-messaging-sw.js esista.");
-                            }
-                        }).catch((err) => {
-                            console.log("Errore durante il recupero del token:", err);
-                        });
-                    } else {
-                        console.log("L'utente ha negato il permesso.");
+        // --- LOGICA NOTIFICHE FCM E NATIVE ---
+        async function setupFCMNotifications() {
+            // Controlla se siamo in un'app nativa Capacitor
+            const isNative = window.Capacitor && window.Capacitor.isNative;
+
+            // Logica per APP NATIVA ANDROID/IOS
+            if (isNative) {
+                const { PushNotifications } = window.Capacitor.Plugins;
+                
+                // Nascondi il pulsante delle notifiche perché non serve nell'app
+                const btnNotifiche = document.getElementById('btnNotifiche');
+                if (btnNotifiche) btnNotifiche.style.display = 'none';
+
+                // Richiedi il permesso nativo di Android/iOS all'avvio
+                let permStatus = await PushNotifications.checkPermissions();
+                if (permStatus.receive === 'prompt') {
+                    permStatus = await PushNotifications.requestPermissions();
+                }
+
+                if (permStatus.receive !== 'granted') {
+                    console.log("Permesso notifiche native negato.");
+                    return;
+                }
+
+                // Registra il dispositivo per ottenere il token
+                await PushNotifications.register();
+
+                // Ascolta la generazione del token nativo e salvalo su Firestore
+                PushNotifications.addListener('registration', async (token) => {
+                    console.log("ECCO IL TUO TOKEN NATIVO:", token.value);
+                    localStorage.setItem('mib_fcm_token', token.value);
+                    if (db && userId) {
+                        await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), {
+                            fcmToken: token.value
+                        }, { merge: true });
                     }
                 });
-            };
 
-            // 1. Collega il click manuale del bottone
-            document.getElementById('btnNotifiche').addEventListener('click', () => {
-                enableNotifications();
-                alert("Notifiche radar attivae con successo.");
-            });
+                PushNotifications.addListener('registrationError', (error) => {
+                    console.log("Errore registrazione notifiche native:", error);
+                });
 
-            // 2. Se il permesso è già stato dato in passato, avvia in automatico (silenzioso)
-            if (Notification.permission === 'granted') {
-                enableNotifications();
+            } else {
+                // Logica originale per la WEB APP (Browser)
+                if (!messaging) return;
+                
+                const enableNotifications = () => {
+                    console.log("Avvio procedura FCM Web...");
+                    Notification.requestPermission().then((permission) => {
+                        if (permission === 'granted') {
+                            console.log("Permesso concesso! Recupero il token...");
+                            getToken(messaging, { vapidKey: VAPID_KEY }).then(async (currentToken) => {
+                                if (currentToken) {
+                                    console.log("ECCO IL TUO TOKEN FCM:", currentToken);
+                                    localStorage.setItem('mib_fcm_token', currentToken);
+                                    if (db && userId) {
+                                        await setDoc(doc(db, `artifacts/${USER_APP_ID}/public/data/presence`, userId), {
+                                            fcmToken: currentToken
+                                        }, { merge: true });
+                                    }
+                                } else {
+                                    console.log("Nessun token disponibile.");
+                                }
+                            }).catch((err) => {
+                                console.log("Errore recupero token:", err);
+                            });
+                        }
+                    });
+                };
+
+                const btn = document.getElementById('btnNotifiche');
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        enableNotifications();
+                        alert("Notifiche radar attivate con successo.");
+                    });
+                }
+
+                if (Notification.permission === 'granted') {
+                    enableNotifications();
+                }
             }
         }
 
