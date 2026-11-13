@@ -815,9 +815,11 @@
                 
                 // INIZIALIZZA IL SERVIZIO MESSAGGISTICA
                 try {
-                    messaging = getMessaging(app);
-                    setupFCMNotifications();
-                } catch (err) {
+    if (!(window.Capacitor && window.Capacitor.isNative)) {
+        messaging = getMessaging(app);
+    }
+    setupFCMNotifications();
+} catch (err) {
                     console.log("Servizio FCM non supportato su questo browser.", err);
                 }
 
